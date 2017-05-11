@@ -7,12 +7,12 @@ import { ObiskiService } from './shared/services/obiski.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  private worker: ServiceWorker;
   obiski;
 
   constructor(private obiskiService: ObiskiService) {}
 
   ngOnInit() {
-    console.log('obiski: ' + this.obiski);
     this.getObiski();
   }
 
@@ -22,4 +22,12 @@ export class AppComponent implements OnInit {
       (error) => console.log('Napaka ' + error)
       );
   }
+/*
+  initServiceWorker() {
+    navigator.serviceWorker.register('./sw.js').then(registration => {
+      console.log(`Registered service worker with scope ${registration.scope}`);
+    }).catch(err => {
+      console.log(`Could not register service worker. Reason: ${err}`);
+    });
+  }*/
 }
