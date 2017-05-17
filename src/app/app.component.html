@@ -1,14 +1,7 @@
 <div class="container">
   <div class="row">
-    <div *ngIf="obiski" class="col-xs-12">
-      <h1>Vsi obiski medicinske sestre {{ obiski[0].patronazna_sestra }}</h1>
-      <div class="line"></div>
-      <div *ngFor="let obisk of obiski">
-        <strong>id:</strong> {{ obisk.id }} <br>
-        <strong>pacient:</strong> {{ obisk.pacient.ime }} {{ obisk.pacient.priimek }} <br>
-        <strong>datum:</strong> {{ obisk.predvideni_datum | date }}
-        <br><br>
-      </div>
+    <div class="col-xs-12">
+      <router-outlet></router-outlet>
     </div>
   </div>
 </div>
