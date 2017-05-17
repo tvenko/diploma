@@ -1,36 +1,34 @@
-<form class="example-form">
-  <md-input-container class="example-full-width">
-    <input mdInput placeholder="Company (disabled)" disabled value="Google">
-  </md-input-container>
-
-  <table class="example-full-width" cellspacing="0"><tr>
-    <td><md-input-container class="example-full-width">
-      <input mdInput placeholder="First name">
-    </md-input-container></td>
-    <td><md-input-container class="example-full-width">
-      <input mdInput placeholder="Long Last Name That Will Be Truncated">
-    </md-input-container></td>
-  </tr></table>
-
-  <p>
-    <md-input-container class="example-full-width">
-      <textarea mdInput placeholder="Address">1600 Amphitheatre Pkwy</textarea>
-    </md-input-container>
-    <md-input-container class="example-full-width">
-      <textarea mdInput placeholder="Address 2"></textarea>
-    </md-input-container>
-  </p>
-
-  <table class="example-full-width" cellspacing="0"><tr>
-    <td><md-input-container class="example-full-width">
-      <input mdInput placeholder="City">
-    </md-input-container></td>
-    <td><md-input-container class="example-full-width">
-      <input mdInput placeholder="State">
-    </md-input-container></td>
-    <td><md-input-container class="example-full-width">
-      <input mdInput #postalCode maxlength="5" placeholder="Postal Code" value="94043">
-      <md-hint align="end">{{postalCode.value.length}} / 5</md-hint>
-    </md-input-container></td>
-  </tr></table>
-</form>
+<md-card class="login-card">
+  <md-card-header>
+    <md-card-title><h2>Prijava v sistem</h2></md-card-title>
+  </md-card-header>
+  <md-card-content>
+    <form (ngSubmit)="onLogin(f)" #f="ngForm">
+      <p>
+      <md-input-container>
+        <input
+          mdInput
+          placeholder="email"
+          type="email"
+          name="email"
+          required
+          ngModel>
+      </md-input-container>
+      </p>
+      <p>
+      <md-input-container>
+        <input
+          mdInput
+          placeholder="geslo"
+          type="password"
+          name="geslo"
+          required
+          ngModel>
+      </md-input-container>
+      </p>
+      <button md-raised-button color="primary" type="submit">PRIJAVA</button>
+    </form>
+    <br>
+    <a href="#">Še nimate računa?</a>
+  </md-card-content>
+</md-card>
