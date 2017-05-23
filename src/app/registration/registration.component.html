@@ -1,3 +1,58 @@
-<p>
-  registration works!
-</p>
+<md-card class="registration-card">
+  <md-card-header>
+    <md-card-title><h2>Registracija</h2></md-card-title>
+  </md-card-header>
+  <md-card-content>
+    <form (ngSubmit)="onRegister()" [formGroup]="registrationForm">
+      <p>
+        <md-input-container>
+          <input mdInput placeholder="Ime" type="text" formControlName="name">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('name').valid && registrationForm.get('name').touched && !registrationForm.get('name').dirty">
+          To polje je obvezno</span>
+      </p>
+      <p>
+        <md-input-container>
+          <input mdInput placeholder="Priimek" type="text" formControlName="surname">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('surname').valid && registrationForm.get('surname').touched && !registrationForm.get('surname').dirty">
+          To polje je obvezno</span>
+      </p>
+      <p>
+        <md-input-container>
+          <input
+            mdInput placeholder="email" type="email" formControlName="email">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('email').valid && registrationForm.get('email').touched && registrationForm.get('email').dirty">
+          Niste vnesli pravilnega emaila</span>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('email').valid && registrationForm.get('email').touched && !registrationForm.get('email').dirty">
+          To polje je obvezno</span>
+      </p>
+      <p>
+        <md-input-container>
+          <input mdInput placeholder="geslo" type="password" formControlName="password">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('password').valid && registrationForm.get('password').touched && !registrationForm.get('password').dirty">
+          To polje je obvezno</span>
+      </p>
+      <p>
+        <md-input-container>
+          <input mdInput placeholder="Ponovno vnesi geslo" type="password" formControlName="password1">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('password1').valid && registrationForm.get('password1').touched && !registrationForm.get('password1').dirty">
+          To polje je obvezno</span>
+        <span class="help-block"
+              *ngIf="!registrationForm.get('password1').valid && registrationForm.get('password1').touched && registrationForm.get('password1').dirty">
+          Gesli se ne ujemata</span>
+      </p>
+      <button md-raised-button color="primary" type="submit" [disabled]="!registrationForm.valid">REGISTRACIJA</button>
+    </form>
+    <br>
+  </md-card-content>
+</md-card>

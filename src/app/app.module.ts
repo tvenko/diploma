@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
@@ -10,6 +10,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '@angular/material';
 import { AppRoutingModule } from './app-routing.module';
 import { RegistrationComponent } from './registration/registration.component';
+import { RouterModule } from '@angular/router';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { UserService } from './shared/services/users.service';
 
 @NgModule({
   declarations: [
@@ -23,9 +26,12 @@ import { RegistrationComponent } from './registration/registration.component';
     HttpModule,
     BrowserAnimationsModule,
     MaterialModule,
-    AppRoutingModule
+    FlexLayoutModule,
+    AppRoutingModule,
+    RouterModule,
+    ReactiveFormsModule
   ],
-  providers: [ObiskiService],
+  providers: [ObiskiService, UserService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

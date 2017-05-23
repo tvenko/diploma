@@ -3,32 +3,38 @@
     <md-card-title><h2>Prijava v sistem</h2></md-card-title>
   </md-card-header>
   <md-card-content>
-    <form (ngSubmit)="onLogin(f)" #f="ngForm">
+    <form (ngSubmit)="onLogin()" [formGroup]="loginForm">
       <p>
-      <md-input-container>
-        <input
-          mdInput
-          placeholder="email"
-          type="email"
-          name="email"
-          required
-          ngModel>
-      </md-input-container>
+        <md-input-container>
+          <input
+            mdInput
+            placeholder="email"
+            type="email"
+            formControlName="email">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!loginForm.get('email').valid && loginForm.get('email').touched && loginForm.get('email').dirty">
+          Niste vnesli pravilnega emaila</span>
+        <span class="help-block"
+              *ngIf="!loginForm.get('email').valid && loginForm.get('email').touched && !loginForm.get('email').dirty">
+          To polje je obvezno</span>
       </p>
       <p>
-      <md-input-container>
-        <input
-          mdInput
-          placeholder="geslo"
-          type="password"
-          name="geslo"
-          required
-          ngModel>
-      </md-input-container>
+        <md-input-container>
+          <input
+            mdInput
+            placeholder="geslo"
+            type="password"
+            formControlName="password">
+        </md-input-container>
+        <span class="help-block"
+              *ngIf="!loginForm.get('password').valid && loginForm.get('password').touched && !loginForm.get('password').dirty">
+          To polje je obvezno</span>
       </p>
-      <button md-raised-button color="primary" type="submit">PRIJAVA</button>
+      <button md-raised-button color="primary" type="submit" [disabled]="!loginForm.valid">PRIJAVA</button>
+      <p *ngIf="loginFail" style="color: red;">Vnesli ste napačno geslo ali email.</p>
     </form>
     <br>
-    <a href="#">Še nimate računa?</a>
+    <a routerLink="/registracija">Še nimate računa?</a>
   </md-card-content>
 </md-card>
