@@ -13,12 +13,17 @@ import { RegistrationComponent } from './registration/registration.component';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { UserService } from './shared/services/users.service';
+import { ObservationInputComponent } from './observation-input/observation-input.component';
+import { ObservationListComponent } from './observation-list/observation-list.component';
+import { ObservationService } from './shared/services/observation.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     RegistrationComponent,
+    ObservationInputComponent,
+    ObservationListComponent,
   ],
   imports: [
     BrowserModule,
@@ -31,7 +36,7 @@ import { UserService } from './shared/services/users.service';
     RouterModule,
     ReactiveFormsModule
   ],
-  providers: [ObiskiService, UserService],
+  providers: [ObiskiService, UserService, ObservationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

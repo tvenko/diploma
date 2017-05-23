@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../shared/services/users.service';
+import { Router } from '@angular/router';
+import { AngularIndexedDB } from 'angular2-indexeddb';
 
 @Component({
   selector: 'app-registration',
@@ -11,7 +13,7 @@ export class RegistrationComponent implements OnInit {
 
   registrationForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService) { }
+  constructor(private formBuilder: FormBuilder, private userService: UserService, private router: Router) { }
 
   ngOnInit() {
     this.registrationForm = new FormGroup({
@@ -28,9 +30,9 @@ export class RegistrationComponent implements OnInit {
       this.registrationForm.controls.name.value,
       this.registrationForm.controls.surname.value,
       this.registrationForm.controls.email.value,
-      this.registrationForm.controls.password.value
+      this.registrationForm.controls.password.value,
     );
-    console.log(this.userService.getUsers());
+    this.router.navigate(['/prijava']);
   }
 
   matchPassword(control: FormControl): {[s: string]: boolean} {

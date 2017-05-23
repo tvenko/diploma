@@ -1,6 +1,7 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, NgForm, Validators} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../shared/services/users.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,7 @@ export class LoginComponent implements OnInit {
   user: {name: string, surname: string, email: string, password: string};
   loginFail = false;
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService) { }
+  constructor(private formBuilder: FormBuilder, private userService: UserService, private router: Router) { }
 
   ngOnInit() {
     this.loginForm = new FormGroup({
@@ -26,7 +27,7 @@ export class LoginComponent implements OnInit {
     this.user = this.userService.getUserByEmail(this.loginForm.controls.email.value);
     if (this.user) {
       if (this.user.password === this.loginForm.controls.password.value) {
-        console.log('uspesna prijava');
+        this.router.navigate(['meritve', 'vnos']);
       } else {
         this.loginFail = true;
         this.loginForm.controls.password.reset();
