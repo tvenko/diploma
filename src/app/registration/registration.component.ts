@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { UserService } from '../shared/services/users.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AngularIndexedDB } from 'angular2-indexeddb';
+import { IndexedDBService } from '../shared/services/indexeddb.service';
 
 @Component({
   selector: 'app-registration',
@@ -13,10 +12,10 @@ export class RegistrationComponent implements OnInit {
 
   registrationForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService, private router: Router) { }
+  constructor(private router: Router, private indexedDB: IndexedDBService) { }
 
   ngOnInit() {
-    this.registrationForm = new FormGroup({
+    this.registrationForm = new FormGroup ({
       'name': new FormControl(null, Validators.required),
       'surname': new FormControl(null, Validators.required),
       'email': new FormControl(null, [Validators.required, Validators.email]),
@@ -26,12 +25,8 @@ export class RegistrationComponent implements OnInit {
   }
 
   onRegister() {
-    this.userService.addUser(
-      this.registrationForm.controls.name.value,
-      this.registrationForm.controls.surname.value,
-      this.registrationForm.controls.email.value,
-      this.registrationForm.controls.password.value,
-    );
+    this.indexedDB.addUser(this.registrationForm.controls.name.value, this.registrationForm.controls.surname.value,
+      this.registrationForm.controls.email.value, this.registrationForm.controls.password.value);
     this.router.navigate(['/prijava']);
   }
 

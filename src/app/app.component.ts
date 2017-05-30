@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import { ObiskiService } from './shared/services/obiski.service';
+import { Component, OnInit } from '@angular/core';
+import { IndexedDBService } from './shared/services/indexeddb.service';
 
 @Component({
   selector: 'app-root',
@@ -7,27 +7,10 @@ import { ObiskiService } from './shared/services/obiski.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  private worker: ServiceWorker;
-  obiski;
 
-  constructor(private obiskiService: ObiskiService) {}
+  constructor(private indexedDB: IndexedDBService) {}
 
   ngOnInit() {
-    this.getObiski();
+    this.indexedDB.initializeDB();
   }
-
-  getObiski() {
-    this.obiskiService.get('999888777').subscribe (
-      (obiski) => this.obiski = obiski.results,
-      (error) => console.log('Napaka ' + error)
-      );
-  }
-/*
-  initServiceWorker() {
-    navigator.serviceWorker.register('./sw.js').then(registration => {
-      console.log(`Registered service worker with scope ${registration.scope}`);
-    }).catch(err => {
-      console.log(`Could not register service worker. Reason: ${err}`);
-    });
-  }*/
 }

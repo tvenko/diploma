@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import { ObiskiService } from './shared/services/obiski.service';
 import { LoginComponent } from './login/login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '@angular/material';
@@ -16,6 +15,7 @@ import { UserService } from './shared/services/users.service';
 import { ObservationInputComponent } from './observation-input/observation-input.component';
 import { ObservationListComponent } from './observation-list/observation-list.component';
 import { ObservationService } from './shared/services/observation.service';
+import { IndexedDBService } from './shared/services/indexeddb.service';
 
 @NgModule({
   declarations: [
@@ -36,7 +36,7 @@ import { ObservationService } from './shared/services/observation.service';
     RouterModule,
     ReactiveFormsModule
   ],
-  providers: [ObiskiService, UserService, ObservationService],
+  providers: [UserService, ObservationService, IndexedDBService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

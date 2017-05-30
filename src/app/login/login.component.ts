@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { UserService } from '../shared/services/users.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { IndexedDBService } from '../shared/services/indexeddb.service';
 
 @Component({
   selector: 'app-login',
@@ -11,10 +11,10 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
-  user: {name: string, surname: string, email: string, password: string};
+  user: {name: string, surname: string, email: string, password: string, id: number};
   loginFail = false;
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService, private router: Router) { }
+  constructor (private router: Router, private indexedDB: IndexedDBService) { }
 
   ngOnInit() {
     this.loginForm = new FormGroup({
@@ -24,17 +24,17 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    this.user = this.userService.getUserByEmail(this.loginForm.controls.email.value);
-    if (this.user) {
+    this.indexedDB.getByEmail(this.loginForm.controls.email.value).then((user) => {
+      this.user = user;
       if (this.user.password === this.loginForm.controls.password.value) {
         this.router.navigate(['meritve', 'vnos']);
       } else {
         this.loginFail = true;
         this.loginForm.controls.password.reset();
       }
-    } else {
+    }, () => {
       this.loginFail = true;
       this.loginForm.controls.password.reset();
-    }
+    });
   }
 }
