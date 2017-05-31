@@ -17,6 +17,8 @@ import { ObservationService } from './shared/services/observation.service';
 import { IndexedDBService } from './shared/services/indexeddb.service';
 import { PageNotFountComponent } from './page-not-fount/page-not-fount.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { LoginNavbarComponent } from './shared/login-navbar/login-navbar.component';
+import { MainNavbarComponent } from './shared/main-navbar/main-navbar.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +29,8 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     ObservationListComponent,
     PageNotFountComponent,
     PageNotFoundComponent,
+    LoginNavbarComponent,
+    MainNavbarComponent,
   ],
   imports: [
     BrowserModule,

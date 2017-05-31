@@ -40,10 +40,4 @@ export class ObservationListComponent implements OnInit {
       },
     );
   }
-
-  onLogOut() {
-    this.indexedDB.unsetUser();
-    this.router.navigate(['/prijava']);
-  }
-
 }
