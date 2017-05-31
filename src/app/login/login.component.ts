@@ -27,7 +27,8 @@ export class LoginComponent implements OnInit {
     this.indexedDB.getByEmail(this.loginForm.controls.email.value).then((user) => {
       this.user = user;
       if (this.user.password === this.loginForm.controls.password.value) {
-        this.router.navigate(['meritve', 'vnos']);
+        this.router.navigate(['meritve']);
+        this.indexedDB.setUser(this.user);
       } else {
         this.loginFail = true;
         this.loginForm.controls.password.reset();

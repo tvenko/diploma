@@ -4,6 +4,7 @@ export class IndexedDBService {
 
   db: any;
   DB_VERSION = 1;
+  user: {name: string, surname: string, email: string, password: string, id: number};
 
   initializeDB() {
     this.db = new AngularIndexedDB('myDb', this.DB_VERSION);
@@ -45,5 +46,17 @@ export class IndexedDBService {
         reject();
       });
     });
+  }
+
+  setUser(user: any) {
+    this.user = user;
+  }
+
+  unsetUser() {
+    this.user = null;
+  }
+
+  getUser() {
+    return this.user;
   }
 }

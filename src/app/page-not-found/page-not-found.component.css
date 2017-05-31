@@ -1,0 +1,10 @@
+.container {
+  align-items: center;
+  text-align: center;
+  margin: auto;
+  font-family: "Calibri Light", serif;
+}
+
+.error {
+  font-size: 100px;
+}

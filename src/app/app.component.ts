@@ -11,6 +11,7 @@ export class AppComponent implements OnInit {
   constructor(private indexedDB: IndexedDBService) {}
 
   ngOnInit() {
+    // inicializacija IndexedDB baze v brskalniku.
     this.indexedDB.initializeDB();
   }
 }

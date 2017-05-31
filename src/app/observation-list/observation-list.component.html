@@ -1,9 +1,26 @@
+<md-toolbar color="primary">
+  <a md-button routerLink="/meritve" class="my-navbar"><h3>Patronažna služba</h3></a>
+  <span class="spacer"></span>
+  <a md-button class="my-navbar" (click)="onLogOut()">odjava</a>
+</md-toolbar>
+
 <h3>Test listing observations</h3>
 <hr>
 
+<!-- izpis seznama meritev -->
 <div *ngFor="let observation of observations">
   ID: {{ observation.resource.id }} <br>
   <div *ngFor="let element of observation.resource.component">
     {{ element.valueQuantity.value }} {{ element.valueQuantity.unit }}
   </div>
+</div>
+
+<!-- ce je prislo do napake -->
+<div *ngIf="observationsError">
+  Meritev ni bilo mogoče pridobiti.
+</div>
+
+<!-- spinner dokler cakas na meritve -->
+<div *ngIf="observationsWaiting">
+  <md-spinner color="accent" style="height: 50px;"></md-spinner>
 </div>

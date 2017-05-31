@@ -11,11 +11,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { RegistrationComponent } from './registration/registration.component';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { UserService } from './shared/services/users.service';
 import { ObservationInputComponent } from './observation-input/observation-input.component';
 import { ObservationListComponent } from './observation-list/observation-list.component';
 import { ObservationService } from './shared/services/observation.service';
 import { IndexedDBService } from './shared/services/indexeddb.service';
+import { PageNotFountComponent } from './page-not-fount/page-not-fount.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,8 @@ import { IndexedDBService } from './shared/services/indexeddb.service';
     RegistrationComponent,
     ObservationInputComponent,
     ObservationListComponent,
+    PageNotFountComponent,
+    PageNotFoundComponent,
   ],
   imports: [
     BrowserModule,
@@ -36,7 +39,7 @@ import { IndexedDBService } from './shared/services/indexeddb.service';
     RouterModule,
     ReactiveFormsModule
   ],
-  providers: [UserService, ObservationService, IndexedDBService],
+  providers: [ObservationService, IndexedDBService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -21,6 +21,7 @@
       "prefix": "app",
       "styles": [
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
+        "my-theme.scss",
         "styles.css"
       ],
       "scripts": [],
