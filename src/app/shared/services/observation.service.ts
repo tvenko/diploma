@@ -8,8 +8,8 @@ export class ObservationService {
 
   constructor(private http: Http) {}
 
-  getObservations() {
-    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/Observation')
+  getObservations(identifier: string) {
+    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/Observation?identifier=' + identifier)
       .map(
         (response: Response) => response.json()
       );

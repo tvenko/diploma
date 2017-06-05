@@ -27,7 +27,7 @@ export class ObservationListComponent implements OnInit {
   getObservations() {
     console.log('check');
     this.observationsWaiting = true;
-    this.observationService.getObservations().subscribe(
+    this.observationService.getObservations('patronaza').subscribe(
       response => {
         this.observationsWaiting = false;
         this.observations = response.entry;
