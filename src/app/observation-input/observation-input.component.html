@@ -1,3 +1,37 @@
-<p>
-  observation-input works!
-</p>
+<app-main-navbar></app-main-navbar>
+
+<form (ngSubmit)="postObservation()" [formGroup]="observationForm">
+  <p>
+    <md-input-container>
+      <input mdInput placeholder="telesna teža" type="text" formControlName="bodyWeight">
+    </md-input-container>
+  </p>
+  <p>
+    <md-input-container>
+      <input mdInput placeholder="srčni utrip" type="text" formControlName="heartRate">
+    </md-input-container>
+  </p>
+  <p>
+    <md-input-container>
+      <input mdInput placeholder="oksigeniranost" type="text" formControlName="oxygenSaturation">
+    </md-input-container>
+  </p>
+  <p>
+    <md-input-container>
+      <input mdInput placeholder="telesna temperatura" type="text" formControlName="bodyTemperature">
+    </md-input-container>
+  </p>
+  <div formGroupName="bloodPressure">
+    <p>
+      <md-input-container>
+        <input mdInput placeholder="krvni pritisk sistolični" type="text" formControlName="systolicPressure">
+      </md-input-container>
+    </p>
+    <p>
+      <md-input-container>
+        <input mdInput placeholder="krvni pritisk diastilični" type="text" formControlName="diastolicPressure">
+      </md-input-container>
+    </p>
+  </div>
+  <button md-raised-button color="primary" type="submit" [disabled]="!observationForm.valid">POŠLJI</button>
+</form>

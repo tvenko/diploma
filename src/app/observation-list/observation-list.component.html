@@ -11,6 +11,9 @@
   </div>
 </div>
 
+<button md-raised-button routerLink="vnos" color="accent" class="md-accent"
+        *ngIf="!observationsWaiting" style="margin-top: 10px;">Vnesi meritve</button>
+
 <!-- ce je prislo do napake -->
 <div *ngIf="observationsError">
   Meritev ni bilo mogoče pridobiti.

@@ -15,4 +15,11 @@ export class ObservationService {
       );
   }
 
+  post(data: any) {
+    return this.http.post('http://fhirtest.uhn.ca/baseDstu3/', data)
+      .map (
+        (response: Response) => response.json()
+      );
+  }
+
 }
