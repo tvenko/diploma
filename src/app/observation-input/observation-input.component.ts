@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { Observation } from '../shared/templates/Observation';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
+import { IndexedDBService } from '../shared/services/indexeddb.service';
 
 @Component({
   selector: 'app-observation-input',
@@ -16,7 +17,7 @@ export class ObservationInputComponent implements OnInit {
   bundle: any = {};
   observationForm: FormGroup;
 
-  constructor(private observationService: ObservationService) { }
+  constructor(private observationService: ObservationService, private indexedDB: IndexedDBService) { }
 
   ngOnInit() {
 
@@ -33,6 +34,25 @@ export class ObservationInputComponent implements OnInit {
 
   }
 
+  saveToQueue() {
+    Object.keys(this.observationForm.controls).forEach(key => {
+      if (this.observationForm.get(key).value !== null) {
+        if (key === 'bloodPressure') {
+          const obs: any = this.observationForm.get(key);
+          if (obs.get('diastolicPressure').value) {
+            this.indexedDB.addObservationToQueue('diastolicPressure', obs.get('diastolicPressure').value);
+          }
+          if (obs.get('systolicPressure').value) {
+            this.indexedDB.addObservationToQueue('systolicPressure', obs.get('systolicPressure').value);
+          }
+        } else {
+          this.indexedDB.addObservationToQueue(key, +this.observationForm.get(key).value);
+        }
+      }
+    });
+    this.postObservation();
+  }
+
   postObservation() {
     let observation: Observation;
 
@@ -44,20 +64,28 @@ export class ObservationInputComponent implements OnInit {
     this.request.method = 'POST';
     this.entry.request = this.request;
 
-    Object.keys(this.observationForm.controls).forEach(key => {
-      if (this.observationForm.get(key).value !== null) {
-        const entry: any = {};
-        entry.request = this.request;
-        observation = new Observation();
-        entry.resource = (observation.createObservable(+this.observationForm.get(key).value, key, this.observationForm.get(key)));;
-        if (entry.resource !== null) {
-          this.bundle.entry.push(entry);
+    this.indexedDB.getAllObservations().then((observations) => {
+      if (observations.length > 0) {
+        for (const el of observations) {
+          const entry: any = {};
+          entry.request = this.request;
+          observation = new Observation();
+          entry.resource = (observation.createObservable(el.value, el.type, this.observationForm.get(el.type)));
+          if (entry.resource !== null) {
+            this.bundle.entry.push(entry);
+          }
         }
+        this.observationService.post(this.bundle).subscribe(
+          response => {
+            console.log(response);
+            if (response.entry.length === observations.length) {
+              this.indexedDB.deleteAllObservations();
+            } else {
+              console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
+            }
+          }
+        );
       }
     });
-
-    this.observationService.post(this.bundle).subscribe(
-      response => console.log(response)
-    );
   }
 }

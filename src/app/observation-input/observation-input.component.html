@@ -1,35 +1,35 @@
 <app-main-navbar></app-main-navbar>
 
-<form (ngSubmit)="postObservation()" [formGroup]="observationForm">
+<form (ngSubmit)="saveToQueue()" [formGroup]="observationForm">
   <p>
     <md-input-container>
-      <input mdInput placeholder="telesna teža" type="text" formControlName="bodyWeight">
+      <input mdInput placeholder="telesna teža" type="number" formControlName="bodyWeight">
     </md-input-container>
   </p>
   <p>
     <md-input-container>
-      <input mdInput placeholder="srčni utrip" type="text" formControlName="heartRate">
+      <input mdInput placeholder="srčni utrip" type="number" formControlName="heartRate">
     </md-input-container>
   </p>
   <p>
     <md-input-container>
-      <input mdInput placeholder="oksigeniranost" type="text" formControlName="oxygenSaturation">
+      <input mdInput placeholder="oksigeniranost" type="number" formControlName="oxygenSaturation">
     </md-input-container>
   </p>
   <p>
     <md-input-container>
-      <input mdInput placeholder="telesna temperatura" type="text" formControlName="bodyTemperature">
+      <input mdInput placeholder="telesna temperatura" type="number" formControlName="bodyTemperature">
     </md-input-container>
   </p>
   <div formGroupName="bloodPressure">
     <p>
       <md-input-container>
-        <input mdInput placeholder="krvni pritisk sistolični" type="text" formControlName="systolicPressure">
+        <input mdInput placeholder="krvni pritisk sistolični" type="number" formControlName="systolicPressure">
       </md-input-container>
     </p>
     <p>
       <md-input-container>
-        <input mdInput placeholder="krvni pritisk diastilični" type="text" formControlName="diastolicPressure">
+        <input mdInput placeholder="krvni pritisk diastilični" type="number" formControlName="diastolicPressure">
       </md-input-container>
     </p>
   </div>

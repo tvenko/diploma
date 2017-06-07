@@ -59,8 +59,6 @@ export class Observation {
 
       case 'bloodPressure': {
         if (form.get('systolicPressure').value !== null || form.get('diastolicPressure').value !== null) {
-          const coding: any = {};
-          const valueQuantity: any = {};
           this.coding.code = '55284-4';
           type = 'Blood Pressure';
           this.createHead(type);

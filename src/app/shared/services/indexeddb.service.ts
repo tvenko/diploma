@@ -9,7 +9,14 @@ export class IndexedDBService {
   initializeDB() {
     this.db = new AngularIndexedDB('myDb', this.DB_VERSION);
     this.db.createStore(this.DB_VERSION, (evt) => {
-      const objectStore = evt.currentTarget.result.createObjectStore(
+
+      let objectStore = evt.currentTarget.result.createObjectStore(
+        'observationQueue', {keyPath: 'id', autoIncrement: true});
+
+      objectStore.createIndex('type', 'type', {unique: false});
+      objectStore.createIndex('value', 'value', {unique: false});
+
+      objectStore = evt.currentTarget.result.createObjectStore(
         'users', {keyPath: 'id', autoIncrement: true});
 
       objectStore.createIndex('name', 'name', {unique: false});
@@ -43,6 +50,43 @@ export class IndexedDBService {
         }
       }, (error) => {
         console.log('uporabnik s ' + email + ' ne obstaja.' + error);
+        reject();
+      });
+    });
+  }
+
+  addObservationToQueue(type: string, value: number) {
+    this.db.add('observationQueue', {
+      type: type,
+      value: value
+    }).then((observation) => {
+      console.log('uspesno dodana meritev ' + observation);
+    }, (error) => {
+      console.log('napaka pri dodajanju meritve ' + error);
+    });
+  }
+
+  getAllObservations() {
+    return new Promise<any>((resolve, reject) => {
+      this.db.getAll('observationQueue').then((observations) => {
+        if (observations) {
+          resolve(observations);
+        } else {
+          reject();
+        }
+      }, (error) => {
+        console.log('napaka pri pridobivanju meritev ' + error);
+        reject();
+      });
+    });
+  }
+
+  deleteAllObservations() {
+    return new Promise<any>((resolve, reject) => {
+      this.db.clear('observationQueue').then(() => {
+        resolve();
+      }, (error) => {
+        console.log('napaka pri brisanju meritev ' + error);
         reject();
       });
     });
