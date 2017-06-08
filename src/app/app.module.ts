@@ -18,6 +18,7 @@ import { IndexedDBService } from './shared/services/indexeddb.service';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { LoginNavbarComponent } from './shared/login-navbar/login-navbar.component';
 import { MainNavbarComponent } from './shared/main-navbar/main-navbar.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { MainNavbarComponent } from './shared/main-navbar/main-navbar.component'
     FlexLayoutModule,
     AppRoutingModule,
     RouterModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbModule.forRoot()
   ],
   providers: [ObservationService, IndexedDBService],
   bootstrap: [AppComponent]

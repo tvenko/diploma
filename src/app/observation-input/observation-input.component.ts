@@ -64,7 +64,7 @@ export class ObservationInputComponent implements OnInit {
     this.request.method = 'POST';
     this.entry.request = this.request;
 
-    this.indexedDB.getAllObservations().then((observations) => {
+    this.indexedDB.getAllObservationsQueue().then((observations) => {
       if (observations.length > 0) {
         for (const el of observations) {
           const entry: any = {};
@@ -79,7 +79,7 @@ export class ObservationInputComponent implements OnInit {
           response => {
             console.log(response);
             if (response.entry.length === observations.length) {
-              this.indexedDB.deleteAllObservations();
+              this.indexedDB.deleteAllObservationsQueue();
             } else {
               console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
             }

@@ -14,6 +14,8 @@ export class ObservationListComponent implements OnInit {
   user: {name: string, surname: string, email: string, password: string, id: number};
   observationsError: boolean;
   observationsWaiting: boolean;
+  page = 1;
+  total = 10;
 
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
@@ -25,13 +27,12 @@ export class ObservationListComponent implements OnInit {
   }
 
   getObservations() {
-    console.log('check');
     this.observationsWaiting = true;
-    this.observationService.getObservations('patronaza').subscribe(
+    this.observationService.getObservations('patronaza', (this.page * 10 - 10)).subscribe(
       response => {
         this.observationsWaiting = false;
         this.observations = response.entry;
-        console.log(this.observations);
+        this.total = response.total;
       },
       error => {
         console.log('Meritev ni bilo mogoce pridobiti');
@@ -39,5 +40,17 @@ export class ObservationListComponent implements OnInit {
         this.observationsWaiting = false;
       },
     );
+  }
+
+  storeObservations() {
+    for (const observation of this.observations) {
+      this.indexedDB.addObservation(
+        observation.resource.code.text,
+        observation.resource.valueQuantity.value,
+        observation.resource.valueQuantity.unit,
+        observation.resource.meta.lastUpdated,
+        observation.resource.id
+      );
+    }
   }
 }

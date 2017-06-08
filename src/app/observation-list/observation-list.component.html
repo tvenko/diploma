@@ -21,33 +21,33 @@
 </div>
 
 <!-- testntne kartice ce fhire ne dela -->
-<div class="card-container">
-  <md-card>
-    <md-card-title>ID: 5i634uot</md-card-title>
-    <md-card-content class="card-content">
-      TYPE: blood pressure <br>
-      VALUE: 34 mm/Hg <br>
-      DATE: today
-    </md-card-content>
-    <md-card-actions align="end">
-      <button md-button color="primary">PODROBNOSTI</button>
-    </md-card-actions>
-  </md-card>
-  <md-card>
-    <md-card-title>ID: 5i634uot</md-card-title>
-    <md-card-content class="card-content">
-      TYPE: blood pressure <br>
-      VALUE: 34 mm/Hg <br>
-      DATE: today
-    </md-card-content>
-    <md-card-actions align="end">
-      <button md-button color="primary">PODROBNOSTI</button>
-    </md-card-actions>
-  </md-card>
-</div>
+<!--<div class="card-container">-->
+  <!--<md-card>-->
+    <!--<md-card-title>ID: 5i634uot</md-card-title>-->
+    <!--<md-card-content class="card-content">-->
+      <!--TYPE: blood pressure <br>-->
+      <!--VALUE: 34 mm/Hg <br>-->
+      <!--DATE: today-->
+    <!--</md-card-content>-->
+    <!--<md-card-actions align="end">-->
+      <!--<button md-button color="primary">PODROBNOSTI</button>-->
+    <!--</md-card-actions>-->
+  <!--</md-card>-->
+  <!--<md-card>-->
+    <!--<md-card-title>ID: 5i634uot</md-card-title>-->
+    <!--<md-card-content class="card-content">-->
+      <!--TYPE: blood pressure <br>-->
+      <!--VALUE: 34 mm/Hg <br>-->
+      <!--DATE: today-->
+    <!--</md-card-content>-->
+    <!--<md-card-actions align="end">-->
+      <!--<button md-button color="primary">PODROBNOSTI</button>-->
+    <!--</md-card-actions>-->
+  <!--</md-card>-->
+<!--</div>-->
 
-<button md-raised-button routerLink="vnos" color="accent" class="md-accent"
-        *ngIf="!observationsWaiting" style="margin-top: 10px; margin-bottom: 30px;">Vnesi meritve</button>
+<!--<button md-raised-button routerLink="vnos" color="accent" class="md-accent"-->
+        <!--*ngIf="!observationsWaiting" style="margin-top: 10px; margin-bottom: 30px;">Vnesi meritve</button>-->
 
 <!-- ce je prislo do napake -->
 <div *ngIf="observationsError">
@@ -57,4 +57,15 @@
 <!-- spinner dokler cakas na meritve -->
 <div *ngIf="observationsWaiting">
   <md-spinner color="accent" style="height: 50px;"></md-spinner>
+</div>
+
+<div class="text-center">
+  <ngb-pagination
+    [collectionSize]=total
+    [(page)]="page"
+    [maxSize]="5"
+    [rotate]="true"
+    [boundaryLinks]="true"
+    (click)="getObservations()">
+  </ngb-pagination>
 </div>

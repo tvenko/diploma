@@ -11,6 +11,14 @@ export class IndexedDBService {
     this.db.createStore(this.DB_VERSION, (evt) => {
 
       let objectStore = evt.currentTarget.result.createObjectStore(
+        'observations', {keyPath: 'id', autoIncrement: true});
+
+      objectStore.createIndex('type', 'type', {unique: false});
+      objectStore.createIndex('value', 'value', {unique: false});
+      objectStore.createIndex('date', 'date', {unique: false});
+      objectStore.createIndex('id', 'id', {unique: true});
+
+      objectStore = evt.currentTarget.result.createObjectStore(
         'observationQueue', {keyPath: 'id', autoIncrement: true});
 
       objectStore.createIndex('type', 'type', {unique: false});
@@ -60,13 +68,13 @@ export class IndexedDBService {
       type: type,
       value: value
     }).then((observation) => {
-      console.log('uspesno dodana meritev ' + observation);
+      console.log('uspesno dodana meritev v vrsto ' + observation);
     }, (error) => {
-      console.log('napaka pri dodajanju meritve ' + error);
+      console.log('napaka pri dodajanju meritve v vrsto ' + error);
     });
   }
 
-  getAllObservations() {
+  getAllObservationsQueue() {
     return new Promise<any>((resolve, reject) => {
       this.db.getAll('observationQueue').then((observations) => {
         if (observations) {
@@ -75,18 +83,47 @@ export class IndexedDBService {
           reject();
         }
       }, (error) => {
-        console.log('napaka pri pridobivanju meritev ' + error);
+        console.log('napaka pri pridobivanju meritev iz vrste ' + error);
         reject();
       });
     });
   }
 
-  deleteAllObservations() {
+  deleteAllObservationsQueue() {
     return new Promise<any>((resolve, reject) => {
       this.db.clear('observationQueue').then(() => {
         resolve();
       }, (error) => {
-        console.log('napaka pri brisanju meritev ' + error);
+        console.log('napaka pri brisanju meritev v vrsti' + error);
+        reject();
+      });
+    });
+  }
+
+  addObservation(type: string, value: number, unit: string, date: any, id: number) {
+    this.db.add('observations', {
+      type: type,
+      value: value,
+      unit: unit,
+      date: date,
+      id: id
+    }).then((observation) => {
+      console.log('uspesno dodana meritev ' + observation);
+    }, (error) => {
+      console.log('napaka pri dodajanju meritve ' + error);
+    });
+  }
+
+  getAllObservations() {
+    return new Promise<any>((resolve, reject) => {
+      this.db.getAll('observations').then((observations) => {
+        if (observations) {
+          resolve(observations);
+        } else {
+          reject();
+        }
+      }, (error) => {
+        console.log('napaka pri pridobivanju meritev ' + error);
         reject();
       });
     });
