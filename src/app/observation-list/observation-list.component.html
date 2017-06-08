@@ -4,7 +4,7 @@
 <hr>
 
 <!-- izpis seznama meritev -->
-<div class="card-container">
+<div class="card-container" *ngIf="!offline">
   <md-card *ngFor="let observation of observations">
     <md-card-title>
       <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
@@ -13,6 +13,22 @@
       TYPE: {{ observation.resource.code.text }} <br>
       VALUE: {{ observation.resource.valueQuantity.value }} {{ observation.resource.valueQuantity.unit }} <br>
       DATE: {{ observation.resource.meta.lastUpdated | date}}
+    </md-card-content>
+    <md-card-actions align="end">
+      <button md-button color="primary">PODROBNOSTI</button>
+    </md-card-actions>
+  </md-card>
+</div>
+
+<div class="card-container" *ngIf="offline">
+  <md-card *ngFor="let observation of observations">
+    <md-card-title>
+      <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.id }}
+    </md-card-title>
+    <md-card-content class="card-container">
+      TYPE: {{ observation.type }} <br>
+      VALUE: {{ observation.value }} {{ observation.unit }} <br>
+      DATE: {{ observation.date | date}}
     </md-card-content>
     <md-card-actions align="end">
       <button md-button color="primary">PODROBNOSTI</button>

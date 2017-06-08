@@ -7,8 +7,9 @@ export class ObservationService {
 
   constructor(private http: Http) {}
 
-  getObservations(identifier: string, offset: number) {
-    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/Observation?identifier=' + identifier + '&_getpagesoffset=' + offset)
+  getObservations(identifier: string, offset: number, count: number) {
+    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/Observation?identifier='
+      + identifier + '&_getpagesoffset=' + offset + '&_count=' + count)
       .map(
         (response: Response) => response.json()
       );

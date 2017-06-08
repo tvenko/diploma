@@ -1,10 +1,15 @@
 import { AngularIndexedDB } from 'angular2-indexeddb';
+import { ObservationService } from './observation.service';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class IndexedDBService {
 
   db: any;
   DB_VERSION = 1;
   user: {name: string, surname: string, email: string, password: string, id: number};
+
+  constructor (private observationService: ObservationService) {}
 
   initializeDB() {
     this.db = new AngularIndexedDB('myDb', this.DB_VERSION);
@@ -32,6 +37,8 @@ export class IndexedDBService {
       objectStore.createIndex('email', 'email', {unique: true});
       objectStore.createIndex('password', 'password', {unique: false});
 
+    }).then(() => {
+      this.storeObservations();
     });
   }
 
@@ -127,6 +134,47 @@ export class IndexedDBService {
         reject();
       });
     });
+  }
+
+  getObservationRange(start, stop) {
+    return new Promise((resolve, reject) => {
+      let i = 0;
+      const observations: any = [];
+      const response: any = [];
+      this.db.openCursor('observations', (evt) => {
+        const cursor = evt.target.result;
+        if (cursor) {
+          if (i >= start && i < stop) {
+            observations.push(cursor.value);
+          }
+          i++;
+          cursor.continue();
+        } else {
+          response[0] = i;
+        }
+      });
+      response[1] = observations;
+      resolve(response);
+    });
+  }
+
+  storeObservations() {
+    this.observationService.getObservations('patronaza', 0, 100).subscribe(
+      response => {
+        for (const observation of response.entry) {
+          this.addObservation(
+            observation.resource.code.text,
+            observation.resource.valueQuantity.value,
+            observation.resource.valueQuantity.unit,
+            observation.resource.meta.lastUpdated,
+            observation.resource.id
+          );
+        }
+      },
+      error => {
+        console.log('Meritev ni bilo mogoce shraniti, napaka v pridobivanju');
+      },
+    );
   }
 
   setUser(user: any) {

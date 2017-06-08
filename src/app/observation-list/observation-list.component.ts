@@ -14,8 +14,10 @@ export class ObservationListComponent implements OnInit {
   user: {name: string, surname: string, email: string, password: string, id: number};
   observationsError: boolean;
   observationsWaiting: boolean;
+  offline = false;
   page = 1;
   total = 10;
+  offset = 20;
 
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
@@ -28,15 +30,23 @@ export class ObservationListComponent implements OnInit {
 
   getObservations() {
     this.observationsWaiting = true;
-    this.observationService.getObservations('patronaza', (this.page * 10 - 10)).subscribe(
+    this.observationService.getObservations('patronaza', (this.page * 10 - 10), this.offset).subscribe(
       response => {
         this.observationsWaiting = false;
+        this.offline = false;
         this.observations = response.entry;
         this.total = response.total;
       },
       error => {
         console.log('Meritev ni bilo mogoce pridobiti');
-        this.observationsError = true;
+        this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset).then((response) => {
+          this.observations = response[1];
+          this.indexedDB.getAllObservations().then((all) => this.total = all.length);
+          if (this.observations.length = 0) {
+            this.observationsError = true;
+          }
+        });
+        this.offline = true;
         this.observationsWaiting = false;
       },
     );
