@@ -81,7 +81,7 @@ export class Observation {
     this.coding.system = 'http://loinc.org';
     this.valueQuantity.system = 'http://unitsofmeasure.org';
 
-    this.identifier.value = 'patronaza';
+    this.identifier.value = 'patronaza1';
     this.observation.identifier = this.identifier;
 
     this.category.text = type;
@@ -108,7 +108,7 @@ export class Observation {
     this.code.coding = this.coding;
     this.code.text = type;
 
-    this.identifier.value = 'patronaza';
+    this.identifier.value = 'patronaza1';
     this.observation.identifier = this.identifier;
 
     this.observation.code = this.code;

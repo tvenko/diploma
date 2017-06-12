@@ -6,17 +6,36 @@
 <!-- izpis seznama meritev -->
 <div class="card-container">
   <md-card *ngFor="let observation of observations">
-    <md-card-title>
-      <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
-    </md-card-title>
-    <md-card-content class="card-container">
-      TYPE: {{ observation.resource.code.text }} <br>
-      VALUE: {{ observation.resource.valueQuantity.value }} {{ observation.resource.valueQuantity.unit }} <br>
-      DATE: {{ observation.resource.meta.lastUpdated | date}}
-    </md-card-content>
-    <md-card-actions align="end">
-      <button md-button color="primary">PODROBNOSTI</button>
-    </md-card-actions>
+    <div *ngIf="!(observation.resource.code.text == 'Blood Pressure')">
+      <md-card-title>
+        <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
+      </md-card-title>
+      <md-card-content class="card-container">
+        TYPE: {{ observation.resource.code.text }} <br>
+        VALUE: {{ observation.resource.valueQuantity.value }} {{ observation.resource.valueQuantity.unit }} <br>
+        DATE: {{ observation.resource.meta.lastUpdated | date}}
+      </md-card-content>
+      <md-card-actions align="end">
+        <button md-button color="primary">PODROBNOSTI</button>
+      </md-card-actions>
+    </div>
+
+    <div *ngIf="observation.resource.code.text == 'Blood Pressure'">
+      <md-card-title>
+        <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
+      </md-card-title>
+      <md-card-content class="card-container">
+        <div *ngFor="let component of observation.resource.component">
+          TYPE: {{ component?.code?.text }} <br>
+          VALUE: {{ component.valueQuantity?.value }} {{ component.valueQuantity?.unit }} <br>
+          <br>
+        </div>
+        DATE: {{ observation.resource.meta?.lastUpdated | date}}
+      </md-card-content>
+      <md-card-actions align="end">
+        <button md-button color="primary">PODROBNOSTI</button>
+      </md-card-actions>
+    </div>
   </md-card>
 </div>
 

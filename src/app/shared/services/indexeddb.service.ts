@@ -154,10 +154,12 @@ export class IndexedDBService {
   }
 
   storeObservations() {
-    this.observationService.getObservations('patronaza', 0, 100).subscribe(
+    this.observationService.getObservations('patronaza1', 0, 100).subscribe(
       response => {
-        for (const observation of response.entry) {
-          this.addObservation(observation);
+        if (response.entry) {
+          for (const observation of response.entry) {
+            this.addObservation(observation);
+          }
         }
       },
       error => {

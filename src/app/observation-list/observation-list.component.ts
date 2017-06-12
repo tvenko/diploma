@@ -30,12 +30,18 @@ export class ObservationListComponent implements OnInit {
 
   getObservations() {
     this.observationsWaiting = true;
-    this.observationService.getObservations('patronaza', (this.page * 10 - 10), this.offset).subscribe(
+    this.observationService.getObservations('patronaza1', (this.page * 10 - 10), this.offset).subscribe(
       response => {
-        this.observationsWaiting = false;
-        this.offline = false;
-        this.observations = response.entry;
-        this.total = response.total;
+        if (response.entry) {
+          this.observationsWaiting = false;
+          this.offline = false;
+          this.observations = response.entry;
+          this.total = response.total;
+        } else {
+          this.observationsWaiting = false;
+          this.offline = false;
+          this.observationsError = true;
+        }
       },
       error => {
         console.log('Meritev ni bilo mogoce pridobiti');
