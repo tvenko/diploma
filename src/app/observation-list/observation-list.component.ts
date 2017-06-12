@@ -30,6 +30,7 @@ export class ObservationListComponent implements OnInit {
 
   getObservations() {
     this.observationsWaiting = true;
+    this.observations = [];
     this.observationService.getObservations('patronaza1', (this.page * 10 - 10), this.offset).subscribe(
       response => {
         if (response.entry) {
@@ -58,9 +59,11 @@ export class ObservationListComponent implements OnInit {
     );
   }
 
-  storeObservations() {
-    for (const observation of this.observations) {
-      this.indexedDB.addObservation(observation);
-    }
+  onDelete(observation, i) {
+    this.observationService.delete(observation.resource.id).subscribe(
+      response => {
+        this.observations.splice(i, i);
+        this.indexedDB.deleteObservtion(observation.resource.id);
+      });
   }
 }

@@ -40,25 +40,31 @@ export class ObservationInputComponent implements OnInit {
         if (key === 'bloodPressure') {
           const obs: any = this.observationForm.get(key);
           const subtype = [];
+          let add = false;
           if (obs.get('diastolicPressure').value) {
+            add = true;
             const obj: any = {};
             obj.type = 'diastolicPressure';
             obj.value = obs.get('diastolicPressure').value;
             subtype.push(obj);
           }
           if (obs.get('systolicPressure').value) {
+            add = true;
             const obj: any = {};
             obj.type = 'systolicPressure';
             obj.value = obs.get('systolicPressure').value;
             subtype.push(obj);
           }
-          this.indexedDB.addObservationToQueue('bloodPressure', 0, subtype);
+          if (add) {
+            this.indexedDB.addObservationToQueue('bloodPressure', 0, subtype);
+          }
         } else {
           this.indexedDB.addObservationToQueue(key, +this.observationForm.get(key).value);
         }
       }
     });
     this.postObservation();
+    this.observationForm.reset();
   }
 
   postObservation() {

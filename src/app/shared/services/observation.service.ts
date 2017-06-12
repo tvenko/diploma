@@ -22,4 +22,11 @@ export class ObservationService {
       );
   }
 
+  delete(id: number) {
+    return this.http.delete('http://fhirtest.uhn.ca/baseDstu3/Observation/' + id)
+      .map (
+        (response: Response) => response.json()
+      );
+  }
+
 }

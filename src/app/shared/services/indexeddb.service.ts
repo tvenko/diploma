@@ -18,6 +18,7 @@ export class IndexedDBService {
       let objectStore = evt.currentTarget.result.createObjectStore(
         'observations', {keyPath: 'id', autoIncrement: true});
 
+      objectStore.createIndex('id', 'id', {unique: true});
       objectStore.createIndex('observation', 'observation', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
@@ -106,9 +107,10 @@ export class IndexedDBService {
     });
   }
 
-  addObservation(observation: any) {
+  addObservation(observation: any, id: number) {
     this.db.add('observations', {
-      observation: observation
+      observation: observation,
+      id: id
     }).then((_observation) => {
       console.log('uspesno dodana meritev ' + _observation);
     }, (error) => {
@@ -158,7 +160,7 @@ export class IndexedDBService {
       response => {
         if (response.entry) {
           for (const observation of response.entry) {
-            this.addObservation(observation);
+            this.addObservation(observation, observation.resource.id);
           }
         }
       },
@@ -166,6 +168,14 @@ export class IndexedDBService {
         console.log('Meritev ni bilo mogoce shraniti, napaka v pridobivanju');
       },
     );
+  }
+
+  deleteObservtion(id: number) {
+    this.db.delete('observations', id).then(() => {
+      console.log('uspesno zbrisan');
+    }, (error) => {
+      console.log('napaka pri brisanj ' + error);
+    });
   }
 
   setUser(user: any) {
