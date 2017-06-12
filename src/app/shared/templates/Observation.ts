@@ -11,7 +11,7 @@ export class Observation {
 
   constructor() {}
 
-  createObservable(value: number, type: string, form: any) {
+  createObservable(value: number, type: string, subtype: any) {
 
     this.observation.resourceType = 'Observation';
 
@@ -58,18 +58,17 @@ export class Observation {
       }
 
       case 'bloodPressure': {
-        if (form.get('systolicPressure').value !== null || form.get('diastolicPressure').value !== null) {
-          this.coding.code = '55284-4';
-          type = 'Blood Pressure';
-          this.createHead(type);
-          if (form.get('systolicPressure').value !== null) {
-            this.createComponent(form.get('systolicPressure').value, 'Systolic Blood Pressure', '8480-6', 'mm[Hg]');
+        console.log(subtype);
+        this.coding.code = '55284-4';
+        type = 'Blood Pressure';
+        this.createHead(type);
+        for (const observable of subtype) {
+          if (observable.type === 'systolicPressure') {
+            this.createComponent(observable.value, 'Systolic Blood Pressure', '8480-6', 'mm[Hg]');
           }
-          if (form.get('diastolicPressure').value !== null) {
-            this.createComponent(form.get('diastolicPressure').value, 'Diastolic Blood Pressure', '8462-4', 'mm[Hg]');
+          if (observable.type === 'diastolicPressure') {
+            this.createComponent(observable.value, 'Diastolic Blood Pressure', '8462-4', 'mm[Hg]');
           }
-        } else {
-          return null;
         }
       }
     }

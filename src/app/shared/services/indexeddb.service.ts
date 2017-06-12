@@ -25,6 +25,7 @@ export class IndexedDBService {
 
       objectStore.createIndex('type', 'type', {unique: false});
       objectStore.createIndex('value', 'value', {unique: false});
+      objectStore.createIndex('subtype', 'subtype', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
         'users', {keyPath: 'id', autoIncrement: true});
@@ -35,7 +36,6 @@ export class IndexedDBService {
       objectStore.createIndex('password', 'password', {unique: false});
 
     }).then(() => {
-      console.log('check');
       this.storeObservations();
     });
   }
@@ -68,10 +68,11 @@ export class IndexedDBService {
     });
   }
 
-  addObservationToQueue(type: string, value: number) {
+  addObservationToQueue(type: string, value: number, subtype: any = null) {
     this.db.add('observationQueue', {
       type: type,
-      value: value
+      value: value,
+      subtype: subtype
     }).then((observation) => {
       console.log('uspesno dodana meritev v vrsto ' + observation);
     }, (error) => {
@@ -106,7 +107,6 @@ export class IndexedDBService {
   }
 
   addObservation(observation: any) {
-    console.log('addObservation check');
     this.db.add('observations', {
       observation: observation
     }).then((_observation) => {
@@ -154,13 +154,10 @@ export class IndexedDBService {
   }
 
   storeObservations() {
-    console.log('check store');
     this.observationService.getObservations('patronaza', 0, 100).subscribe(
       response => {
-        console.log(response);
         for (const observation of response.entry) {
           this.addObservation(observation);
-          console.log('check added');
         }
       },
       error => {
