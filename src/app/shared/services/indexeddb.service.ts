@@ -1,6 +1,6 @@
-import { AngularIndexedDB } from 'angular2-indexeddb';
 import { ObservationService } from './observation.service';
 import { Injectable } from '@angular/core';
+import { AngularIndexedDB } from './AngularIndexedDB';
 
 @Injectable()
 export class IndexedDBService {
@@ -12,7 +12,7 @@ export class IndexedDBService {
   constructor (private observationService: ObservationService) {}
 
   initializeDB() {
-    this.db = new AngularIndexedDB('myDb', this.DB_VERSION);
+    this.db = new AngularIndexedDB();
     this.db.createStore(this.DB_VERSION, (evt) => {
 
       let objectStore = evt.currentTarget.result.createObjectStore(

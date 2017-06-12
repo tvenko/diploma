@@ -19,6 +19,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { LoginNavbarComponent } from './shared/login-navbar/login-navbar.component';
 import { MainNavbarComponent } from './shared/main-navbar/main-navbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { AngularIndexedDB } from './shared/services/AngularIndexedDB';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     ReactiveFormsModule,
     NgbModule.forRoot()
   ],
-  providers: [ObservationService, IndexedDBService],
+  providers: [ObservationService, IndexedDBService, AngularIndexedDB],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
