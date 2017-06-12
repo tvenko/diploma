@@ -54,13 +54,7 @@ export class ObservationListComponent implements OnInit {
 
   storeObservations() {
     for (const observation of this.observations) {
-      this.indexedDB.addObservation(
-        observation.resource.code.text,
-        observation.resource.valueQuantity.value,
-        observation.resource.valueQuantity.unit,
-        observation.resource.meta.lastUpdated,
-        observation.resource.id
-      );
+      this.indexedDB.addObservation(observation);
     }
   }
 }

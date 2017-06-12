@@ -4,7 +4,7 @@
 <hr>
 
 <!-- izpis seznama meritev -->
-<div class="card-container" *ngIf="!offline">
+<div class="card-container">
   <md-card *ngFor="let observation of observations">
     <md-card-title>
       <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
@@ -20,51 +20,6 @@
   </md-card>
 </div>
 
-<div class="card-container" *ngIf="offline">
-  <md-card *ngFor="let observation of observations">
-    <md-card-title>
-      <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.id }}
-    </md-card-title>
-    <md-card-content class="card-container">
-      TYPE: {{ observation.type }} <br>
-      VALUE: {{ observation.value }} {{ observation.unit }} <br>
-      DATE: {{ observation.date | date}}
-    </md-card-content>
-    <md-card-actions align="end">
-      <button md-button color="primary">PODROBNOSTI</button>
-    </md-card-actions>
-  </md-card>
-</div>
-
-<!-- testntne kartice ce fhire ne dela -->
-<!--<div class="card-container">-->
-  <!--<md-card>-->
-    <!--<md-card-title>ID: 5i634uot</md-card-title>-->
-    <!--<md-card-content class="card-content">-->
-      <!--TYPE: blood pressure <br>-->
-      <!--VALUE: 34 mm/Hg <br>-->
-      <!--DATE: today-->
-    <!--</md-card-content>-->
-    <!--<md-card-actions align="end">-->
-      <!--<button md-button color="primary">PODROBNOSTI</button>-->
-    <!--</md-card-actions>-->
-  <!--</md-card>-->
-  <!--<md-card>-->
-    <!--<md-card-title>ID: 5i634uot</md-card-title>-->
-    <!--<md-card-content class="card-content">-->
-      <!--TYPE: blood pressure <br>-->
-      <!--VALUE: 34 mm/Hg <br>-->
-      <!--DATE: today-->
-    <!--</md-card-content>-->
-    <!--<md-card-actions align="end">-->
-      <!--<button md-button color="primary">PODROBNOSTI</button>-->
-    <!--</md-card-actions>-->
-  <!--</md-card>-->
-<!--</div>-->
-
-<!--<button md-raised-button routerLink="vnos" color="accent" class="md-accent"-->
-        <!--*ngIf="!observationsWaiting" style="margin-top: 10px; margin-bottom: 30px;">Vnesi meritve</button>-->
-
 <!-- ce je prislo do napake -->
 <div *ngIf="observationsError">
   Meritev ni bilo mogoče pridobiti.
@@ -75,6 +30,7 @@
   <md-spinner color="accent" style="height: 50px;"></md-spinner>
 </div>
 
+<!-- paginacija -->
 <div class="text-center">
   <ngb-pagination
     [collectionSize]=total

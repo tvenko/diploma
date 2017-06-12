@@ -18,10 +18,7 @@ export class IndexedDBService {
       let objectStore = evt.currentTarget.result.createObjectStore(
         'observations', {keyPath: 'id', autoIncrement: true});
 
-      objectStore.createIndex('type', 'type', {unique: false});
-      objectStore.createIndex('value', 'value', {unique: false});
-      objectStore.createIndex('date', 'date', {unique: false});
-      objectStore.createIndex('id', 'id', {unique: true});
+      objectStore.createIndex('observation', 'observation', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
         'observationQueue', {keyPath: 'id', autoIncrement: true});
@@ -38,6 +35,7 @@ export class IndexedDBService {
       objectStore.createIndex('password', 'password', {unique: false});
 
     }).then(() => {
+      console.log('check');
       this.storeObservations();
     });
   }
@@ -107,15 +105,12 @@ export class IndexedDBService {
     });
   }
 
-  addObservation(type: string, value: number, unit: string, date: any, id: number) {
+  addObservation(observation: any) {
+    console.log('addObservation check');
     this.db.add('observations', {
-      type: type,
-      value: value,
-      unit: unit,
-      date: date,
-      id: id
-    }).then((observation) => {
-      console.log('uspesno dodana meritev ' + observation);
+      observation: observation
+    }).then((_observation) => {
+      console.log('uspesno dodana meritev ' + _observation);
     }, (error) => {
       console.log('napaka pri dodajanju meritve ' + error);
     });
@@ -145,7 +140,7 @@ export class IndexedDBService {
         const cursor = evt.target.result;
         if (cursor) {
           if (i >= start && i < stop) {
-            observations.push(cursor.value);
+            observations.push(cursor.value.observation);
           }
           i++;
           cursor.continue();
@@ -159,16 +154,13 @@ export class IndexedDBService {
   }
 
   storeObservations() {
+    console.log('check store');
     this.observationService.getObservations('patronaza', 0, 100).subscribe(
       response => {
+        console.log(response);
         for (const observation of response.entry) {
-          this.addObservation(
-            observation.resource.code.text,
-            observation.resource.valueQuantity.value,
-            observation.resource.valueQuantity.unit,
-            observation.resource.meta.lastUpdated,
-            observation.resource.id
-          );
+          this.addObservation(observation);
+          console.log('check added');
         }
       },
       error => {
