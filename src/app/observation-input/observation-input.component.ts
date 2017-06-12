@@ -12,6 +12,8 @@ import { IndexedDBService } from '../shared/services/indexeddb.service';
 })
 export class ObservationInputComponent implements OnInit {
 
+  patients: any[];
+  patient: any;
   request: any = {};
   entry: any = {};
   bundle: any = {};
@@ -32,6 +34,7 @@ export class ObservationInputComponent implements OnInit {
       })
     });
 
+    this.getPatients();
   }
 
   saveToQueue() {
@@ -68,6 +71,9 @@ export class ObservationInputComponent implements OnInit {
   }
 
   postObservation() {
+
+    console.log(this.patient);
+
     let observation: Observation;
 
     this.bundle.resourceType = 'Bundle';
@@ -79,13 +85,12 @@ export class ObservationInputComponent implements OnInit {
     this.entry.request = this.request;
 
     this.indexedDB.getAllObservationsQueue().then((observations) => {
-      console.log('check ' + observations);
       if (observations.length > 0) {
         for (const el of observations) {
           const entry: any = {};
           entry.request = this.request;
           observation = new Observation();
-          entry.resource = (observation.createObservable(el.value, el.type, el.subtype));
+          entry.resource = (observation.createObservable(el.value, el.type, el.subtype, +this.patient.resource.id));
           if (entry.resource !== null) {
             this.bundle.entry.push(entry);
           }
@@ -102,5 +107,12 @@ export class ObservationInputComponent implements OnInit {
         );
       }
     });
+  }
+
+  getPatients() {
+    this.observationService.getPatients('patronaza1').subscribe(
+      response => {this.patients = response.entry; },
+      error => { console.log('ni bilo mogoce pridobiti pacientov ' + error); }
+    );
   }
 }

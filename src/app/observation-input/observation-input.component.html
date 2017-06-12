@@ -1,5 +1,13 @@
 <app-main-navbar></app-main-navbar>
 
+<form>
+  <md-select placeholder="Pacient" [(ngModel)]="patient" name="patient">
+    <md-option *ngFor="let patient of patients" [value]="patient">
+      <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle"> {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
+    </md-option>
+  </md-select>
+</form>
+
 <form (ngSubmit)="saveToQueue()" [formGroup]="observationForm">
   <p>
     <md-input-container>

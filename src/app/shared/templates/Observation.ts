@@ -8,10 +8,11 @@ export class Observation {
   categoryCoding: any = {};
   valueQuantity: any = {};
   identifier: any = {};
+  subject: any = {};
 
   constructor() {}
 
-  createObservable(value: number, type: string, subtype: any) {
+  createObservable(value: number, type: string, subtype: any, patientId: number) {
 
     this.observation.resourceType = 'Observation';
 
@@ -20,6 +21,9 @@ export class Observation {
     this.categoryCoding.display = 'Vital Signs';
 
     this.category.coding = this.categoryCoding;
+
+    this.subject.reference = 'Patient/' + patientId;
+    this.observation.subject = this.subject;
 
     switch (type) {
       case 'bodyWeight': {

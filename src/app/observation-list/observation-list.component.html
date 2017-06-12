@@ -1,17 +1,27 @@
 <app-main-navbar></app-main-navbar>
 
-<h3>Test listing observations</h3>
+<h3>Testni seznam meritev</h3>
 <hr>
 
+<form>
+  <md-select placeholder="Pacient" [(ngModel)]="patient" name="patient">
+    <md-option *ngFor="let patient of patients" [value]="patient" (click)="getObservations()">
+      <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle"> {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
+    </md-option>
+  </md-select>
+</form>
+
 <!-- izpis seznama meritev -->
-<div class="card-container">
+<div class="card-container" *ngIf="patient">
   <div *ngFor="let observation of observations; let i = index">
     <md-card *ngIf="observation.resource.category">
       <div *ngIf="!(observation.resource.code?.text == 'Blood Pressure')">
         <md-card-title>
-          <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
+          <img [src]="observation.patient?.photo[0]?.url" alt="avatar" class="avatar img-circle">
+          {{ observation.patient?.name[0]?.given[0] }} {{ observation.patient?.name[0]?.family }}
         </md-card-title>
         <md-card-content class="card-container">
+          ID: {{ observation.resource.id }} <br>
           TYPE: {{ observation.resource.code?.text }} <br>
           VALUE: {{ observation.resource.valueQuantity?.value }} {{ observation.resource.valueQuantity?.unit }} <br>
           DATE: {{ observation.resource.meta?.lastUpdated | date}}
@@ -23,9 +33,11 @@
 
       <div *ngIf="observation.resource.code?.text == 'Blood Pressure'">
         <md-card-title>
-          <i class="fa fa-list-alt" aria-hidden="true"></i> &nbsp; ID: {{ observation.resource.id }}
+          <img [src]="observation.patient?.photo[0]?.url" alt="avatar" class="avatar img-circle">
+          {{ observation.patient?.name[0]?.given[0] }} {{ observation.patient?.name[0]?.family }}
         </md-card-title>
         <md-card-content class="card-container">
+          ID: {{ observation.resource.id }} <br>
           TYPE: {{ observation.resource.component[0].code?.text }} <br>
           VALUE: {{ observation.resource.component[0].valueQuantity?.value }} {{ observation.resource.component[0].valueQuantity?.unit }} <br>
           <br>
@@ -40,6 +52,10 @@
       </div>
     </md-card>
   </div>
+</div>
+
+<div *ngIf="!patient">
+  <p>Prosim izberite pacienta</p>
 </div>
 
 <!-- ce je prislo do napake -->

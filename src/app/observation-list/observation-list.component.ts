@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 export class ObservationListComponent implements OnInit {
 
   observations: any[];
+  patients: any[];
+  patient: any;
   user: {name: string, surname: string, email: string, password: string, id: number};
   observationsError: boolean;
   observationsWaiting: boolean;
@@ -26,36 +28,54 @@ export class ObservationListComponent implements OnInit {
   ngOnInit() {
     this.user = this.indexedDB.getUser();
     this.getObservations();
+    this.getPatients();
   }
 
   getObservations() {
-    this.observationsWaiting = true;
-    this.observations = [];
-    this.observationService.getObservations('patronaza1', (this.page * 10 - 10), this.offset).subscribe(
-      response => {
-        if (response.entry) {
-          this.observationsWaiting = false;
-          this.offline = false;
-          this.observations = response.entry;
-          this.total = response.total;
-        } else {
-          this.observationsWaiting = false;
-          this.offline = false;
-          this.observationsError = true;
-        }
-      },
-      error => {
-        console.log('Meritev ni bilo mogoce pridobiti');
-        this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset).then((response) => {
-          this.observations = response[1];
-          this.indexedDB.getAllObservations().then((all) => this.total = all.length);
-          if (this.observations.length = 0) {
+    this.observationsWaiting = false;
+    if (this.patient) {
+      this.observationsWaiting = true;
+      this.observationService.getObservationsByPatient
+      ('patronaza1', (this.page * 10 - 10), this.offset, this.patient.resource.id).subscribe(
+        response => {
+          if (response.entry) {
+            this.observationsWaiting = false;
+            this.offline = false;
+            this.observations = response.entry;
+            this.total = response.total;
+            for (const observation of this.observations) {
+              this.observationService.getPatient(observation.resource.subject.reference).subscribe(
+                response1 => {
+                  observation.patient = response1;
+                  console.log(this.observations);
+                }
+              );
+            }
+          } else {
+            this.observationsWaiting = false;
+            this.offline = false;
             this.observationsError = true;
           }
-        });
-        this.offline = true;
-        this.observationsWaiting = false;
-      },
+        },
+        error => {
+          console.log('Meritev ni bilo mogoce pridobiti');
+          this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset).then((response) => {
+            this.observations = response[1];
+            this.indexedDB.getAllObservations().then((all) => this.total = all.length);
+            if (this.observations.length = 0) {
+              this.observationsError = true;
+            }
+          });
+          this.offline = true;
+          this.observationsWaiting = false;
+        },
+      );
+    }
+  }
+
+  getPatients() {
+    this.observationService.getPatients('patronaza1').subscribe(
+      response => this.patients = response.entry
     );
   }
 

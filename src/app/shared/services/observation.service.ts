@@ -15,6 +15,28 @@ export class ObservationService {
       );
   }
 
+  getObservationsByPatient(identifier: string, offset: number, count: number, patientId: number) {
+    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/Observation?identifier='
+      + identifier + '&_getpagesoffset=' + offset + '&_count=' + count + '&patient=' + patientId)
+      .map(
+        (response: Response) => response.json()
+      );
+  }
+
+  getPatients(identifier: string) {
+    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/Patient?identifier=' + identifier)
+      .map(
+        (response: Response) => response.json()
+      );
+  }
+
+  getPatient(id: string) {
+    return this.http.get('http://fhirtest.uhn.ca/baseDstu3/' + id)
+      .map(
+        (response: Response) => response.json()
+      );
+  }
+
   post(data: any) {
     return this.http.post('http://fhirtest.uhn.ca/baseDstu3/', data)
       .map (

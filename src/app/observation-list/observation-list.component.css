@@ -14,3 +14,8 @@ md-card {
 .card-content {
   color: rgba(0,0,0,0.6);
 }
+
+.avatar {
+  height: 40px;
+  width: 40px;
+}
