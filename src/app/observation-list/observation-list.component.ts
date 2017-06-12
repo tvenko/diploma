@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 export class ObservationListComponent implements OnInit {
 
   observations: any[];
-  patients: any[];
+  patients: any[] = [];
   patient: any;
   user: {name: string, surname: string, email: string, password: string, id: number};
   observationsError: boolean;
@@ -47,7 +47,6 @@ export class ObservationListComponent implements OnInit {
               this.observationService.getPatient(observation.resource.subject.reference).subscribe(
                 response1 => {
                   observation.patient = response1;
-                  console.log(this.observations);
                 }
               );
             }
@@ -59,12 +58,24 @@ export class ObservationListComponent implements OnInit {
         },
         error => {
           console.log('Meritev ni bilo mogoce pridobiti');
-          this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset).then((response) => {
+          const patientId: string = 'Patient/' + this.patient.resource.id;
+          console.log(patientId);
+          this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset, patientId).then((response) => {
             this.observations = response[1];
+            setTimeout(() => {
+              this.total = this.observations.length;
+              for (const observation of this.observations) {
+                const id = observation.resource.subject.reference.substring(8);
+                this.indexedDB.getPatient(id).then((patient) => {
+                  observation.patient = patient;
+                });
+              }
+              console.log(this.observations);
+              if (this.total === 0) {
+                this.observationsError = true;
+              }
+              }, 100);
             this.indexedDB.getAllObservations().then((all) => this.total = all.length);
-            if (this.observations.length = 0) {
-              this.observationsError = true;
-            }
           });
           this.offline = true;
           this.observationsWaiting = false;
@@ -75,7 +86,15 @@ export class ObservationListComponent implements OnInit {
 
   getPatients() {
     this.observationService.getPatients('patronaza1').subscribe(
-      response => this.patients = response.entry
+      response => this.patients = response.entry,
+      error => {
+        console.log('pacientov ni bilo mogoce pridoviti');
+        this.indexedDB.getAllPatients().then((response: any) => {
+          for (const patient of response) {
+            this.patients.push(patient.patient);
+          }
+        });
+      }
     );
   }
 

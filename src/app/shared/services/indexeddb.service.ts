@@ -29,6 +29,12 @@ export class IndexedDBService {
       objectStore.createIndex('subtype', 'subtype', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
+        'patients', {keyPath: 'id', autoIncrement: true});
+
+      objectStore.createIndex('id', 'id', {unique: true});
+      objectStore.createIndex('patient', 'patient', {unique: false});
+
+      objectStore = evt.currentTarget.result.createObjectStore(
         'users', {keyPath: 'id', autoIncrement: true});
 
       objectStore.createIndex('name', 'name', {unique: false});
@@ -38,6 +44,7 @@ export class IndexedDBService {
 
     }).then(() => {
       this.storeObservations();
+      this.storePatients();
     });
   }
 
@@ -133,7 +140,7 @@ export class IndexedDBService {
     });
   }
 
-  getObservationRange(start, stop) {
+  getObservationRange(start: number, stop: number, patinetId: string) {
     return new Promise((resolve, reject) => {
       let i = 0;
       const observations: any = [];
@@ -141,7 +148,7 @@ export class IndexedDBService {
       this.db.openCursor('observations', (evt) => {
         const cursor = evt.target.result;
         if (cursor) {
-          if (i >= start && i < stop) {
+          if (i >= start && i < stop && cursor.value.observation.resource.subject.reference === patinetId) {
             observations.push(cursor.value.observation);
           }
           i++;
@@ -175,6 +182,56 @@ export class IndexedDBService {
       console.log('uspesno zbrisan');
     }, (error) => {
       console.log('napaka pri brisanj ' + error);
+    });
+  }
+
+  storePatients() {
+    this.observationService.getPatients('patronaza1').subscribe(
+      response => {
+        if (response.entry) {
+          for (const patient of response.entry) {
+            this.db.add('patients', {
+              patient: patient,
+              id: patient.resource.id
+            }).then((_patient) => {
+              console.log('uspesno dodan pacient ' + _patient);
+            }, (error) => {
+              console.log('napaka pri dodajanju pacienta ' + error);
+            });
+          }
+        }
+      },
+      error => {
+        console.log('ni bilo mogoce shraniti pacientov lokalno shrambo ' + error);
+    }
+    );
+  }
+
+  getAllPatients() {
+    return new Promise((resolve, reject) => {
+      this.db.getAll('patients').then((patients) => {
+        if (patients) {
+          resolve(patients);
+        } else {
+          console.log('pacientov ni bilo mogoce pridobiti iz IndexedDB');
+          reject();
+        }
+      });
+    });
+  }
+
+  getPatient(id: number) {
+    return new Promise((resolve, reject) => {
+      this.db.getByIndex('patients', 'id', id).then((patient) => {
+        if (patient) {
+          resolve(patient.patient.resource);
+        } else {
+          console.log('napaka pri pridobivanju pacienta');
+          reject();
+        }
+      }, (error) => {
+        console.log('napaka pri pridobivanju pacienta ' + error);
+      });
     });
   }
 
