@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
-import { Router } from '@angular/router';
 import {ObservationInputComponent} from '../observation-input/observation-input.component';
 
 @Component({
@@ -11,36 +10,42 @@ import {ObservationInputComponent} from '../observation-input/observation-input.
 })
 export class ObservationListComponent implements OnInit {
 
+  // spremenljivke za shranjevanje podatkov
   observations: any[];
   patients: any[] = [];
   patient: any;
-  user: {name: string, surname: string, email: string, password: string, id: number};
 
   observationsError: boolean;
   observationsWaiting: boolean;
   offline = false;
   patientError = false;
   patientSpinner = true;
-  observationAmount = 0;
   page = 1;
   total = 10;
   offset = 20;
 
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
-              private router: Router,
               private observationInput: ObservationInputComponent) { }
 
   ngOnInit() {
-    this.user = this.indexedDB.getUser();
+    // Ob inicializaciji pridobimo meritve in paciente
     this.getObservations();
     this.getPatients();
   }
 
+  /**
+   * Metoda, ki se poklice ob inicializaciji in najprej poskusa pridobiti meritve iz streznika, ce to ne uspe, jih
+   * poskusi pridobiti iz lokalne shrambe IndexedDB
+   */
   getObservations() {
+    this.observationsError = false;
     this.observationsWaiting = false;
+    this.observations = [];
+    // Preverimo ali je izbran pacient za katerega zelimo pridobiti meritve
     if (this.patient) {
       this.observationsWaiting = true;
+      // Poskusamo pridobiti meritve s streznika
       this.observationService.getObservationsByPatient
       ('patronaza1', (this.page * 10 - 10), this.offset, this.patient.resource.id).subscribe(
         response => {
@@ -48,13 +53,18 @@ export class ObservationListComponent implements OnInit {
             this.observationsWaiting = false;
             this.offline = false;
             this.observations = response.entry;
-            this.total = response.total;
+            this.total = response.total;  // stevilo vseh meritev, potrebujemo za paginacijo
             for (const observation of this.observations) {
-              this.observationService.getPatient(observation.resource.subject.reference).subscribe(
-                response1 => {
-                  observation.patient = response1;
-                }
-              );
+              // Preverimo ali ima meritev podatek o pacientu
+              if (observation.resource.subject) {
+                // Za dano meritev pridobimo vse podatke o pacientu in jih dodamo v meritev, saj ima originalna meritev
+                // podatek samo o IDju pacienta
+                this.observationService.getPatient(observation.resource.subject.reference).subscribe(
+                  response1 => {
+                    observation.patient = response1;
+                  }
+                );
+              }
             }
           } else {
             this.observationsWaiting = false;
@@ -62,21 +72,22 @@ export class ObservationListComponent implements OnInit {
             this.observationsError = true;
           }
         },
-        error => {
+        // Meritev s streznika ni bilo mogoce pridobiti zato poskusimo pridobiti meritve iz IndexedDB-ja
+        () => {
           console.log('Meritev ni bilo mogoce pridobiti');
           const patientId: string = 'Patient/' + this.patient.resource.id;
-          console.log(patientId);
           this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset, patientId).then((response) => {
             this.observations = response[1];
+            // Nastavljen TimeOut na 100ms, da se tabela meritev napolni
             setTimeout(() => {
-              this.total = this.observations.length;
+              this.total = this.observations.length;  // stevilo vseh meritev, potrebno za paginacijo
               for (const observation of this.observations) {
-                const id = observation.resource.subject.reference.substring(8);
+                const id = observation.resource.subject.reference.substring(8); // iz Patient/123456 se pretvori v 123456
+                // Za dano meritev pridobimo vse podatke o pacient iz lokalne shrambe
                 this.indexedDB.getPatient(id).then((patient) => {
                   observation.patient = patient;
                 });
               }
-              console.log(this.observations);
               if (this.total === 0) {
                 this.observationsError = true;
               }
@@ -90,13 +101,19 @@ export class ObservationListComponent implements OnInit {
     }
   }
 
+  /**
+   * Metoda, ki se poklice ob inicializaciji in najprej poskusa iz streznika pridobiti vse nase paciente, ce to ne uspe
+   * jih poskusi pridobiti se iz lokalne shrambe
+   */
   getPatients() {
+    // Poskusimo pridobiti paciente s streznika
     this.observationService.getPatients('patronaza1').subscribe(
       response => {
         this.patients = response.entry;
         this.patientSpinner = false;
       },
-      error => {
+      // Ce pacientov ne uspemo pridobiti iz streznika poskusimo se v lokalni shrambi
+      () => {
         console.log('pacientov ni bilo mogoce pridoviti');
         this.indexedDB.getAllPatients().then((response: any) => {
           if (response) {
@@ -112,28 +129,59 @@ export class ObservationListComponent implements OnInit {
     );
   }
 
+  /**
+   * Metoda, ki se poklice ob pritisku na gumb izbrisi ali pa jo klice metoda onSinc()
+   * Metoda doda meritev v deleteQueue, jo zbrise iz this.observations, nato jo poskusa zbrisati na strezniku,
+   * ce to uspe meritev zbrise iz deleteQueue
+   * @param observation - meritev, ki jo poskusamo zbrisati
+   * @param i - index v tabeli this.observations, ce brisemo naknadno iz deleteQueue je ta nastavljen na -1
+   */
   onDelete(observation, i = -1) {
-    this.indexedDB.addToDeleteQueue(observation.resource.id).then(() => {
-      if (i > 0) {
-        this.observations.splice(i, i);
-      }
-      this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
-        if (observations) {
-          for (const id of observations) {
-            this.indexedDB.deleteObservtion(id);
-            this.observationService.delete(id).subscribe(
-              response => this.indexedDB.deleteObservationDeleteQueue(id)
-            );
+    // Preverimo ali klicemo metodo iz metode onSinc()
+    if (i < 0) {
+      // Izbrisemo meritev na strezniku
+      this.observationService.deleteObservation(+observation.id).subscribe(
+        response => this.indexedDB.deleteObservationDeleteQueue(observation.id)
+      );
+    } else { // Ce meritev klicemo ob pritisku na gumb izbrisi
+      // Meritev dodamo v delteQueue
+      this.indexedDB.addToDeleteQueue(observation.resource.id).then(() => {
+        this.observations.splice(i, i); // Izbrisemo meritev iz tabele this.observations
+        this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
+          if (observations) {
+            for (const el of observations) {
+              this.indexedDB.deleteObservtion(el.id); // Izbrisemo meritev v lokalni shrambi
+              this.observationService.deleteObservation(+el.id).subscribe( // Poskusimo izbrisati meritev na strezniku
+                response => this.indexedDB.deleteObservationDeleteQueue(el.id) // ce uspe jo zbrisemo tudi v deleteQueue
+              );
+            }
           }
-        }
+        });
+      }, () => {  // V priemru da je meritev slucajno ze v deleteQueue in jo poskusamo dodati se enkrat
+        console.log('meritev je ze v vrsti za brisanje ');
+        this.observations.splice(i, i);
+        this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
+          if (observations) {
+            console.log(observations);
+            for (const el of observations) {
+              this.indexedDB.deleteObservtion(el.id);
+              this.observationService.deleteObservation(+el.id).subscribe(
+                response => this.indexedDB.deleteObservationDeleteQueue(el.id)
+              );
+            }
+          }
+        });
       });
-    });
+    }
   }
 
+  /**
+   * Metoda, ki se poklice ob kliku gumba sinhroniziraj.
+   * Metoda poskusa na streznik poslati meritve iz cakalne vrste, pobristi na strezniku meritve v vcakalni vrsti
+   * deleteQueue in osvezi meritve, ki jih imamo v lokalni shrambi
+   */
   onSinc() {
     this.observationInput.postObservation();
-    this.observationAmount = this.observationInput.observationsAmount;
-    // todo najbrz bo napaka ker pri onDelete se enkrat dodajamo v delteQueue in bo vrnil error zato se ne bo brisalo na serverju.
     this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
       if (observations) {
         for (const observation of observations) {
@@ -141,5 +189,6 @@ export class ObservationListComponent implements OnInit {
         }
       }
     });
+    this.indexedDB.storeObservations();
   }
 }

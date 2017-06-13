@@ -1,3 +1,11 @@
+/**
+ * Code writen by gilf, delian and iNViTiON
+ * Available on https://github.com/gilf/angular2-indexeddb
+ *
+ * Ker je v npm paket angular2-indexeddb napaka in se pri prevajanju v produkcijsko kodo zatakne, sem iz tega paketa
+ * uzel samo razred AngularIndexedDB in jo dodal v svoj paket, kot service
+ */
+
 'use strict';
 
 import {Injectable} from '@angular/core';

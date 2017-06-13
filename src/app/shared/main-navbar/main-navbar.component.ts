@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { IndexedDBService } from '../services/indexeddb.service';
 
 @Component({
   selector: 'app-main-navbar',
@@ -9,10 +8,9 @@ import { IndexedDBService } from '../services/indexeddb.service';
 })
 export class MainNavbarComponent {
 
-  constructor(private router: Router, private indexedDB: IndexedDBService) { }
+  constructor(private router: Router) { }
 
   onLogOut() {
-    this.indexedDB.unsetUser();
     this.router.navigate(['/prijava']);
   }
 }

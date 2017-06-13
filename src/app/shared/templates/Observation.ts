@@ -10,12 +10,18 @@ export class Observation {
   identifier: any = {};
   subject: any = {};
 
-  request: any = {};
-  entry: any = {};
   bundle: any = {};
 
   constructor() {}
 
+  /**
+   * Metoda, ki ustvari objekt meritve
+   * @param value - vrenost meritve
+   * @param type - tip meritve
+   * @param subtype - podtip meritve (potrebno za krni tlak)
+   * @param patientId - id pacienta
+   * @returns {any}
+   */
   createObservable(value: number, type: string, subtype: any, patientId: number) {
 
     this.observation.resourceType = 'Observation';
@@ -84,6 +90,11 @@ export class Observation {
     return this.observation;
   }
 
+  /**
+   * V primeru da meritev ni krvni tlak se objekt meritve zgenerira po tej metodi
+   * @param value - vrednost meritve
+   * @param type - tip meritve
+   */
   createSimple(value: number, type: string) {
     this.coding.display = type;
     this.coding.system = 'http://loinc.org';
@@ -105,6 +116,10 @@ export class Observation {
     this.observation.valueQuantity = this.valueQuantity;
   }
 
+  /**
+   * V primeru krvnega tlaka se najprej zgenerirajo splosne informacije v objektu, ki so skupne obema krvnima tlakoma
+   * @param type - tip meritve(==bloodPressure)
+   */
   createHead(type: string) {
     this.coding.display = type;
     this.coding.system = 'http://loinc.org';
@@ -123,6 +138,13 @@ export class Observation {
     this.observation.component = [];
   }
 
+  /**
+   * V primeru krvnega tlaka se za vsak krvni tlak posebej dodajo se podatki o sistolicnem in diastolicnem tlaku v objekt meritve
+   * @param value - vrednost mertirve
+   * @param type - tip meritve
+   * @param c - koda meritve
+   * @param unit - merska enota meritve
+   */
   createComponent(value: number, type: string, c: string, unit: string ) {
 
     const category: any = {};

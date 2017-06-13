@@ -28,7 +28,6 @@ export class LoginComponent implements OnInit {
       this.user = user;
       if (this.user.password === this.loginForm.controls.password.value) {
         this.router.navigate(['meritve']);
-        this.indexedDB.setUser(this.user);
       } else {
         this.loginFail = true;
         this.loginForm.controls.password.reset();

@@ -24,12 +24,18 @@ export class RegistrationComponent implements OnInit {
     });
   }
 
+  /**
+   * Metoda, ki se poklice ob kliku gumba registracija in doda novega uporabnika v IndexedDB
+   */
   onRegister() {
     this.indexedDB.addUser(this.registrationForm.controls.name.value, this.registrationForm.controls.surname.value,
       this.registrationForm.controls.email.value, this.registrationForm.controls.password.value);
     this.router.navigate(['/prijava']);
   }
 
+  /**
+   * Metoda, ki sluzi, kot validacija za preverjanje ali se glesli v formi ujemata
+   */
   matchPassword(control: FormControl): {[s: string]: boolean} {
     if (this.registrationForm) {
       if (control.value !== this.registrationForm.controls.password.value) {

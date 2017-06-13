@@ -7,7 +7,6 @@ export class IndexedDBService {
 
   db: any;
   DB_VERSION = 1;
-  user: {name: string, surname: string, email: string, password: string, id: number};
 
   constructor (private observationService: ObservationService) {}
 
@@ -31,6 +30,7 @@ export class IndexedDBService {
       objectStore.createIndex('type', 'type', {unique: false});
       objectStore.createIndex('value', 'value', {unique: false});
       objectStore.createIndex('subtype', 'subtype', {unique: false});
+      objectStore.createIndex('patient', 'patient', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
         'deleteQueue', {keyPath: 'id', autoIncrement: true});
@@ -61,6 +61,7 @@ export class IndexedDBService {
    * Metode za dodajanje in pridobivanje uporabnikov (patronazne sestre).
    */
 
+  // Ob registraciji dodamo uporabnika v indexedDB
   addUser(name: string, surname: string, email: string, password: string) {
     this.db.add('users', {
       name: name,
@@ -74,6 +75,7 @@ export class IndexedDBService {
     );
   }
 
+  // pridobimo uporabnika iz IndexedDB glede na email
   getByEmail(email: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       this.db.getByIndex('users', 'email', email).then((user) => {
@@ -93,11 +95,13 @@ export class IndexedDBService {
    * Metode za dodajanje, pridobivanje in brisanje meritev v cakalno vrsto.
    */
 
-  addObservationToQueue(type: string, value: number, subtype: any = null) {
+  // Dodamo novo meritev v cakalno vrsto
+  addObservationToQueue(type: string, value: number, patient: number, subtype: any = null) {
     this.db.add('observationQueue', {
       type: type,
       value: value,
-      subtype: subtype
+      subtype: subtype,
+      patient: patient
     }).then((observation) => {
       console.log('uspesno dodana meritev v vrsto ' + observation);
     }, (error) => {
@@ -105,6 +109,7 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobimo vse meritve, ki so shranjene v vrsti
   getAllObservationsQueue() {
     return new Promise<any>((resolve, reject) => {
       this.db.getAll('observationQueue').then((observations) => {
@@ -120,6 +125,7 @@ export class IndexedDBService {
     });
   }
 
+  // Izbrisemo vse meritve v vrsti
   deleteAllObservationsQueue() {
     return new Promise<any>((resolve, reject) => {
       this.db.clear('observationQueue').then(() => {
@@ -136,6 +142,7 @@ export class IndexedDBService {
    * Uporabniku jih vrnemo, ko je offline.
    */
 
+  // dodamo meritev v indexedDB, da jo lahk ovrnemo uporabniku, ko je offline
   addObservation(observation: any, id: number) {
     this.db.add('observations', {
       observation: observation,
@@ -147,6 +154,7 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobimo vse meritve, ki jih imamo shranjene
   getAllObservations() {
     return new Promise<any>((resolve, reject) => {
       this.db.getAll('observations').then((observations) => {
@@ -162,18 +170,26 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobim meritve iz intervala podanega s start in stop, ki ustrezajo pacientu s IDjem enakim patientId
   getObservationRange(start: number, stop: number, patinetId: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let i = 0;
       const observations: any = [];
       const response: any = [];
       this.db.openCursor('observations', (evt) => {
         const cursor = evt.target.result;
         if (cursor) {
-          if (i >= start && i < stop && cursor.value.observation.resource.subject.reference === patinetId) {
-            observations.push(cursor.value.observation);
+          // Preverimo ali je meritev sploh veljavna
+          // Neveljavna je lahko, ce zbrisemo meritev, vendar se na strezniku se ne pobrise popolno ampak samo ni ma vrednosti
+          if (cursor.value.observation.resource.subject) {
+            if (i >= start && i < stop && cursor.value.observation.resource.subject.reference === patinetId) {
+              observations.push(cursor.value.observation);
+            }
+            i++;
+          } else {
+            // ce obstaja neveljavna meritev v IndexedDB jo pobrisemo
+            this.deleteObservtion(cursor.value.id);
           }
-          i++;
           cursor.continue();
         } else {
           response[0] = i;
@@ -184,6 +200,7 @@ export class IndexedDBService {
     });
   }
 
+  // Shranimo prvih 100 meritev v indexedDB, klice se ob inicializaciji baze in sinhronizaciji
   storeObservations() {
     this.observationService.getObservations('patronaza1', 0, 100).subscribe(
       response => {
@@ -193,12 +210,13 @@ export class IndexedDBService {
           }
         }
       },
-      error => {
+      () => {
         console.log('Meritev ni bilo mogoce shraniti, napaka v pridobivanju');
       },
     );
   }
 
+  // Izbrisemo meritev s podanim IDjem
   deleteObservtion(id: number) {
     this.db.delete('observations', id).then(() => {
       console.log('uspesno zbrisan');
@@ -211,6 +229,7 @@ export class IndexedDBService {
    * Metode za dodajanje, pridobvanje in brisanje meritev v vrsti za brisanje
    */
 
+  // id meritve dodamo v vrsto za brisanje
   addToDeleteQueue(id: number) {
     return new Promise((resolve, reject) => {
       this.db.add('deleteQueue', {
@@ -225,6 +244,7 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobimo vse IDje meritev, ki so v vrsti za brisanje
   getAllObservationsDeleteQueue() {
     return new Promise((resolve, reject) => {
       this.db.getAll('deleteQueue').then((observations) => {
@@ -240,6 +260,7 @@ export class IndexedDBService {
     });
   }
 
+  // Izbrisemo ID meritve, ki smo jo uspesno zbrisali tudi na strezniku
   deleteObservationDeleteQueue(id: number) {
     this.db.delete('deleteQueue', id).then(() => {
       console.log('uspesno zbrisan');
@@ -253,6 +274,7 @@ export class IndexedDBService {
    * Uporabimo, ko je uporabnik offline.
    */
 
+  // V IndexedDB si shranimo vse paciente, ki jih imamo na strezniku, metoda se klice ob inicializaciji baze
   storePatients() {
     this.observationService.getPatients('patronaza1').subscribe(
       response => {
@@ -275,6 +297,7 @@ export class IndexedDBService {
     );
   }
 
+  // Pridobimo vse shranjene paciente
   getAllPatients() {
     return new Promise((resolve, reject) => {
       this.db.getAll('patients').then((patients) => {
@@ -288,6 +311,7 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobimo pacienta s podanim IDjem
   getPatient(id: number) {
     return new Promise((resolve, reject) => {
       this.db.getByIndex('patients', 'id', id).then((patient) => {
@@ -301,17 +325,5 @@ export class IndexedDBService {
         console.log('napaka pri pridobivanju pacienta ' + error);
       });
     });
-  }
-
-  setUser(user: any) {
-    this.user = user;
-  }
-
-  unsetUser() {
-    this.user = null;
-  }
-
-  getUser() {
-    return this.user;
   }
 }

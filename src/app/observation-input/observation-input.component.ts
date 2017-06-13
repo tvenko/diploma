@@ -14,7 +14,7 @@ import { IndexedDBService } from '../shared/services/indexeddb.service';
 @Injectable()
 export class ObservationInputComponent implements OnInit {
 
-  patients: any[];
+  patients: any[] = [];
   patient: any;
   request: any = {};
   entry: any = {};
@@ -42,9 +42,14 @@ export class ObservationInputComponent implements OnInit {
     this.getPatients();
   }
 
+  /**
+   * Metoda ki shrani meritve, ki jih zelimo poslati v vrsto
+   */
   saveToQueue() {
     Object.keys(this.observationForm.controls).forEach(key => {
-      if (this.observationForm.get(key).value !== null) {
+      if (this.observationForm.get(key).value !== null && key !== 'patient') {
+        const patientId = this.patient.resource.id;
+        // krvni tlak je potrebno obravnavati posebej, saj je struktura meritve drugacna (vsebuje sistolicni in diastolicni) tlak
         if (key === 'bloodPressure') {
           const obs: any = this.observationForm.get(key);
           const subtype = [];
@@ -63,11 +68,13 @@ export class ObservationInputComponent implements OnInit {
             obj.value = obs.get('systolicPressure').value;
             subtype.push(obj);
           }
+          // preverimo ali je bila katera od vrednosti tlaka dodana, saj je bloodPressure vedno veljaven key
           if (add) {
-            this.indexedDB.addObservationToQueue('bloodPressure', 0, subtype);
+            this.indexedDB.addObservationToQueue('bloodPressure', 0, patientId, subtype);
           }
         } else {
-          this.indexedDB.addObservationToQueue(key, +this.observationForm.get(key).value);
+          // Dodamo meritev vcakalno vrsto
+          this.indexedDB.addObservationToQueue(key, +this.observationForm.get(key).value, patientId);
         }
       }
     });
@@ -75,6 +82,9 @@ export class ObservationInputComponent implements OnInit {
     this.observationForm.reset();
   }
 
+  /**
+   * Metoda, ki oblikuje objekt meritve in ga poskusa poslati na streznik
+   */
   postObservation() {
 
     let observation: Observation;
@@ -93,22 +103,21 @@ export class ObservationInputComponent implements OnInit {
           const entry: any = {};
           entry.request = this.request;
           observation = new Observation();
-          if (el.subject) {
-            const patientId = el.subject.reference.substring(8);
-            entry.resource = (observation.createObservable(el.value, el.type, el.subtype, + patientId));
+          if (el.patient) {
+            // zgeneriramo objekt meritve
+            entry.resource = (observation.createObservable(el.value, el.type, el.subtype, el.patient));
           } else {
             console.log('meritvi manjka pacient');
-            break;
           }
           if (entry.resource !== null) {
             this.bundle.entry.push(entry);
           }
         }
+        // Meritve poskusimo poslati na streznik, ce uspe meritve pobrisemo iz vrste
         this.observationService.post(this.bundle).subscribe(
           response => {
-            console.log(response);
             if (response.entry.length === observations.length) {
-              this.indexedDB.deleteAllObservationsQueue();
+              this.indexedDB.deleteAllObservationsQueue().then();
                this.observationsAmount = response.entry.length;
             } else {
               console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
@@ -119,10 +128,25 @@ export class ObservationInputComponent implements OnInit {
     });
   }
 
+  /**
+   * Metoda, ki poskusa pridobiti vse paciente, ki jih imamo s streznika, ce to ne uspe jih poskusi pridobiti iz
+   * lokalne shrambe
+   */
   getPatients() {
     this.observationService.getPatients('patronaza1').subscribe(
-      response => {this.patients = response.entry; },
-      error => { console.log('ni bilo mogoce pridobiti pacientov ' + error); }
+      response => {
+        this.patients = response.entry;
+      },
+      () => {
+        console.log('pacientov ni bilo mogoce pridoviti');
+        this.indexedDB.getAllPatients().then((response: any) => {
+          if (response) {
+            for (const patient of response) {
+              this.patients.push(patient.patient);
+            }
+          }
+        });
+      }
     );
   }
 }
