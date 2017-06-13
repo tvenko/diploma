@@ -44,7 +44,7 @@ import { AngularIndexedDB } from './shared/services/AngularIndexedDB';
     ReactiveFormsModule,
     NgbModule.forRoot()
   ],
-  providers: [ObservationService, IndexedDBService, AngularIndexedDB],
+  providers: [ObservationService, IndexedDBService, AngularIndexedDB, ObservationInputComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

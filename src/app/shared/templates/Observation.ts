@@ -10,6 +10,10 @@ export class Observation {
   identifier: any = {};
   subject: any = {};
 
+  request: any = {};
+  entry: any = {};
+  bundle: any = {};
+
   constructor() {}
 
   createObservable(value: number, type: string, subtype: any, patientId: number) {

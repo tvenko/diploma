@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
 import { Router } from '@angular/router';
+import {ObservationInputComponent} from '../observation-input/observation-input.component';
 
 @Component({
   selector: 'app-observations-list',
@@ -14,18 +15,21 @@ export class ObservationListComponent implements OnInit {
   patients: any[] = [];
   patient: any;
   user: {name: string, surname: string, email: string, password: string, id: number};
+
   observationsError: boolean;
   observationsWaiting: boolean;
   offline = false;
   patientError = false;
   patientSpinner = true;
+  observationAmount = 0;
   page = 1;
   total = 10;
   offset = 20;
 
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
-              private router: Router) { }
+              private router: Router,
+              private observationInput: ObservationInputComponent) { }
 
   ngOnInit() {
     this.user = this.indexedDB.getUser();
@@ -108,9 +112,11 @@ export class ObservationListComponent implements OnInit {
     );
   }
 
-  onDelete(observation, i) {
+  onDelete(observation, i = -1) {
     this.indexedDB.addToDeleteQueue(observation.resource.id).then(() => {
-      this.observations.splice(i, i);
+      if (i > 0) {
+        this.observations.splice(i, i);
+      }
       this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
         if (observations) {
           for (const id of observations) {
@@ -125,11 +131,15 @@ export class ObservationListComponent implements OnInit {
   }
 
   onSinc() {
-    this.indexedDB.getAllObservationsQueue().then((observations) => {
-      console.log(observations);
-    });
-    this.indexedDB.getAllObservationsDeleteQueue().then((observations) => {
-      console.log(observations);
+    this.observationInput.postObservation();
+    this.observationAmount = this.observationInput.observationsAmount;
+    // todo najbrz bo napaka ker pri onDelete se enkrat dodajamo v delteQueue in bo vrnil error zato se ne bo brisalo na serverju.
+    this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
+      if (observations) {
+        for (const observation of observations) {
+          this.onDelete(observation);
+        }
+      }
     });
   }
 }

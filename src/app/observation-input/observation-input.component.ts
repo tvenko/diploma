@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { Observation } from '../shared/templates/Observation';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -10,6 +10,8 @@ import { IndexedDBService } from '../shared/services/indexeddb.service';
   styleUrls: ['./observation-input.component.css'],
   providers: [Observation]
 })
+
+@Injectable()
 export class ObservationInputComponent implements OnInit {
 
   patients: any[];
@@ -18,6 +20,8 @@ export class ObservationInputComponent implements OnInit {
   entry: any = {};
   bundle: any = {};
   observationForm: FormGroup;
+
+  observationsAmount = 0;
 
   constructor(private observationService: ObservationService, private indexedDB: IndexedDBService) { }
 
@@ -73,8 +77,6 @@ export class ObservationInputComponent implements OnInit {
 
   postObservation() {
 
-    console.log(this.patient);
-
     let observation: Observation;
 
     this.bundle.resourceType = 'Bundle';
@@ -91,7 +93,13 @@ export class ObservationInputComponent implements OnInit {
           const entry: any = {};
           entry.request = this.request;
           observation = new Observation();
-          entry.resource = (observation.createObservable(el.value, el.type, el.subtype, +this.patient.resource.id));
+          if (el.subject) {
+            const patientId = el.subject.reference.substring(8);
+            entry.resource = (observation.createObservable(el.value, el.type, el.subtype, + patientId));
+          } else {
+            console.log('meritvi manjka pacient');
+            break;
+          }
           if (entry.resource !== null) {
             this.bundle.entry.push(entry);
           }
@@ -101,6 +109,7 @@ export class ObservationInputComponent implements OnInit {
             console.log(response);
             if (response.entry.length === observations.length) {
               this.indexedDB.deleteAllObservationsQueue();
+               this.observationsAmount = response.entry.length;
             } else {
               console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
             }
