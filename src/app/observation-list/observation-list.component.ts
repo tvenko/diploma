@@ -22,7 +22,7 @@ export class ObservationListComponent implements OnInit {
   patientSpinner = true;
   page = 1;
   total = 10;
-  offset = 20;
+  offset = 10;
 
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
