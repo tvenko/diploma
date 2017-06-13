@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { Observation } from '../shared/templates/Observation';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
 
 @Component({
@@ -28,6 +28,7 @@ export class ObservationInputComponent implements OnInit {
       'heartRate': new FormControl(null),
       'oxygenSaturation': new FormControl(null),
       'bodyTemperature': new FormControl(null),
+      'patient': new FormControl(null, Validators.required),
       'bloodPressure': new FormGroup({
         'systolicPressure': new FormControl(null),
         'diastolicPressure': new FormControl(null)

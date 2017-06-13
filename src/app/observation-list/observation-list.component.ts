@@ -17,6 +17,8 @@ export class ObservationListComponent implements OnInit {
   observationsError: boolean;
   observationsWaiting: boolean;
   offline = false;
+  patientError = false;
+  patientSpinner = true;
   page = 1;
   total = 10;
   offset = 20;
@@ -86,23 +88,48 @@ export class ObservationListComponent implements OnInit {
 
   getPatients() {
     this.observationService.getPatients('patronaza1').subscribe(
-      response => this.patients = response.entry,
+      response => {
+        this.patients = response.entry;
+        this.patientSpinner = false;
+      },
       error => {
         console.log('pacientov ni bilo mogoce pridoviti');
         this.indexedDB.getAllPatients().then((response: any) => {
-          for (const patient of response) {
-            this.patients.push(patient.patient);
+          if (response) {
+            for (const patient of response) {
+              this.patients.push(patient.patient);
+            }
+          } else {
+            this.patientError = true;
           }
+          this.patientSpinner = false;
         });
       }
     );
   }
 
   onDelete(observation, i) {
-    this.observationService.delete(observation.resource.id).subscribe(
-      response => {
-        this.observations.splice(i, i);
-        this.indexedDB.deleteObservtion(observation.resource.id);
+    this.indexedDB.addToDeleteQueue(observation.resource.id).then(() => {
+      this.observations.splice(i, i);
+      this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
+        if (observations) {
+          for (const id of observations) {
+            this.indexedDB.deleteObservtion(id);
+            this.observationService.delete(id).subscribe(
+              response => this.indexedDB.deleteObservationDeleteQueue(id)
+            );
+          }
+        }
       });
+    });
+  }
+
+  onSinc() {
+    this.indexedDB.getAllObservationsQueue().then((observations) => {
+      console.log(observations);
+    });
+    this.indexedDB.getAllObservationsDeleteQueue().then((observations) => {
+      console.log(observations);
+    });
   }
 }

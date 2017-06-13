@@ -1,14 +1,16 @@
 <app-main-navbar></app-main-navbar>
 
-<form>
-  <md-select placeholder="Pacient" [(ngModel)]="patient" name="patient">
-    <md-option *ngFor="let patient of patients" [value]="patient">
-      <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle"> {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
-    </md-option>
-  </md-select>
-</form>
+<p style="margin: 10px; font-size: 16px;"><a routerLink="/meritve">&larr; Nazaj na pregled meritev</a></p>
 
-<form (ngSubmit)="saveToQueue()" [formGroup]="observationForm">
+<form (ngSubmit)="saveToQueue()" [formGroup]="observationForm" class="myForm">
+  <p>
+    <md-select mdInput placeholder="pacient" [(ngModel)]="patient" formControlName="patient">
+      <md-option *ngFor="let patient of patients" [value]="patient">
+        <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle">
+        {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
+      </md-option>
+    </md-select>
+  </p>
   <p>
     <md-input-container>
       <input mdInput placeholder="telesna teža" type="number" formControlName="bodyWeight">

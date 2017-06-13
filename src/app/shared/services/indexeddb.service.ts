@@ -11,6 +11,10 @@ export class IndexedDBService {
 
   constructor (private observationService: ObservationService) {}
 
+  /**
+   *  Inicializacija IndexedDB lokalne podatkovne baze.
+   */
+
   initializeDB() {
     this.db = new AngularIndexedDB();
     this.db.createStore(this.DB_VERSION, (evt) => {
@@ -27,6 +31,11 @@ export class IndexedDBService {
       objectStore.createIndex('type', 'type', {unique: false});
       objectStore.createIndex('value', 'value', {unique: false});
       objectStore.createIndex('subtype', 'subtype', {unique: false});
+
+      objectStore = evt.currentTarget.result.createObjectStore(
+        'deleteQueue', {keyPath: 'id', autoIncrement: true});
+
+      objectStore.createIndex('id', 'id', {unique: true});
 
       objectStore = evt.currentTarget.result.createObjectStore(
         'patients', {keyPath: 'id', autoIncrement: true});
@@ -47,6 +56,10 @@ export class IndexedDBService {
       this.storePatients();
     });
   }
+
+  /**
+   * Metode za dodajanje in pridobivanje uporabnikov (patronazne sestre).
+   */
 
   addUser(name: string, surname: string, email: string, password: string) {
     this.db.add('users', {
@@ -75,6 +88,10 @@ export class IndexedDBService {
       });
     });
   }
+
+  /**
+   * Metode za dodajanje, pridobivanje in brisanje meritev v cakalno vrsto.
+   */
 
   addObservationToQueue(type: string, value: number, subtype: any = null) {
     this.db.add('observationQueue', {
@@ -113,6 +130,11 @@ export class IndexedDBService {
       });
     });
   }
+
+  /**
+   * Metode za dodajanje, pridobivanje in brisanje meritev, ki jih pridobimo iz streznika in shranimo.
+   * Uporabniku jih vrnemo, ko je offline.
+   */
 
   addObservation(observation: any, id: number) {
     this.db.add('observations', {
@@ -184,6 +206,52 @@ export class IndexedDBService {
       console.log('napaka pri brisanj ' + error);
     });
   }
+
+  /**
+   * Metode za dodajanje, pridobvanje in brisanje meritev v vrsti za brisanje
+   */
+
+  addToDeleteQueue(id: number) {
+    return new Promise((resolve, reject) => {
+      this.db.add('deleteQueue', {
+        id: id
+      }).then(() => {
+        console.log('meritev uspesno dodana v vrsto za brisanje');
+        resolve();
+      }, (error) => {
+        console.log('napaka pri dodajanju meritve v vrsto za brisanje ' + error);
+        reject();
+      });
+    });
+  }
+
+  getAllObservationsDeleteQueue() {
+    return new Promise((resolve, reject) => {
+      this.db.getAll('deleteQueue').then((observations) => {
+        if (observations) {
+          resolve(observations);
+        } else {
+          reject();
+        }
+      }, (error) => {
+        console.log('napaka pri pridobivanju meritev iz vrste za brisanje ' + error);
+        reject();
+      });
+    });
+  }
+
+  deleteObservationDeleteQueue(id: number) {
+    this.db.delete('deleteQueue', id).then(() => {
+      console.log('uspesno zbrisan');
+    }, (error) => {
+      console.log('napaka pri brisanj ' + error);
+    });
+  }
+
+  /**
+   * Metode za shranjevanje in pridobivanje pacientov.
+   * Uporabimo, ko je uporabnik offline.
+   */
 
   storePatients() {
     this.observationService.getPatients('patronaza1').subscribe(

@@ -1,6 +1,10 @@
 <app-main-navbar></app-main-navbar>
 
-<h3>Testni seznam meritev</h3>
+<h3>Testni seznam meritev
+  <button md-button color="primary" (click)="onSinc()" align="end" style="float: right;">SINHRONIZIRAJ</button>
+</h3>
+
+
 <hr>
 
 <form>
@@ -10,6 +14,10 @@
     </md-option>
   </md-select>
 </form>
+<span *ngIf="patientSpinner">
+  <md-spinner color="accent" style="height: 30px;"></md-spinner>
+</span>
+<span *ngIf="patientError" style="color: red;">Pacientov ni bilo mogoče pridobiti</span>
 
 <!-- izpis seznama meritev -->
 <div class="card-container" *ngIf="patient">
@@ -54,17 +62,17 @@
   </div>
 </div>
 
-<div *ngIf="!patient">
-  <p>Prosim izberite pacienta</p>
+<div *ngIf="!patient" style="margin: 60px;">
+  <h3>Prosim izberite pacienta</h3>
 </div>
 
 <!-- ce je prislo do napake -->
-<div *ngIf="observationsError">
-  Meritev ni bilo mogoče pridobiti.
+<div *ngIf="observationsError" style="margin: 60px;">
+  <h6 style="color: red;">Meritev ni bilo mogoče pridobiti.</h6>
 </div>
 
 <!-- spinner dokler cakas na meritve -->
-<div *ngIf="observationsWaiting">
+<div *ngIf="observationsWaiting" style="margin: 60px;">
   <md-spinner color="accent" style="height: 50px;"></md-spinner>
 </div>
 
