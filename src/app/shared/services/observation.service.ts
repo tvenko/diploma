@@ -5,6 +5,8 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class ObservationService {
 
+  patient: any;
+
   constructor(private http: Http) {}
 
   // S streznika pridobimo meritve v obmocju od offset do offset + count in indentifijerjem, ki poskrbi,
@@ -59,4 +61,11 @@ export class ObservationService {
       );
   }
 
+  getLoclaPatient() {
+    return this.patient;
+  }
+
+  setLocalPatient(patient: any) {
+    this.patient = patient;
+  }
 }

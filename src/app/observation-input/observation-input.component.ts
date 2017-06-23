@@ -26,19 +26,17 @@ export class ObservationInputComponent implements OnInit {
   constructor(private observationService: ObservationService, private indexedDB: IndexedDBService) { }
 
   ngOnInit() {
-
     this.observationForm = new FormGroup ({
-      'bodyWeight': new FormControl(null),
-      'heartRate': new FormControl(null),
-      'oxygenSaturation': new FormControl(null),
-      'bodyTemperature': new FormControl(null),
+      'bodyWeight': new FormControl(null, this.weightValidator.bind(this)),
+      'heartRate': new FormControl(null, this.heartRateValidator.bind(this)),
+      'oxygenSaturation': new FormControl(null, this.oxygenSaturationValidator.bind(this)),
+      'bodyTemperature': new FormControl(null, this.temperatureValidator.bind(this)),
       'patient': new FormControl(null, Validators.required),
       'bloodPressure': new FormGroup({
-        'systolicPressure': new FormControl(null),
-        'diastolicPressure': new FormControl(null)
+        'systolicPressure': new FormControl(null, this.systolicPressureValidator.bind(this)),
+        'diastolicPressure': new FormControl(null, this.diastolicPressureValidator.bind(this))
       })
-    });
-
+    }, this.formValidator.bind(this));
     this.getPatients();
   }
 
@@ -73,7 +71,7 @@ export class ObservationInputComponent implements OnInit {
             this.indexedDB.addObservationToQueue('bloodPressure', 0, patientId, subtype);
           }
         } else {
-          // Dodamo meritev vcakalno vrsto
+          // Dodamo meritev v cakalno vrsto
           this.indexedDB.addObservationToQueue(key, +this.observationForm.get(key).value, patientId);
         }
       }
@@ -136,6 +134,16 @@ export class ObservationInputComponent implements OnInit {
     this.observationService.getPatients('patronaza1').subscribe(
       response => {
         this.patients = response.entry;
+        this.patient = this.observationService.getLoclaPatient();
+        // Za pacienta nastavimo paienta, ki je izbran pri pregledu
+        if (this.patient) {
+          for (const patient of this.patients) {
+            if (this.patient.resource.id === patient.resource.id) {
+              this.patient = patient;
+              break;
+            }
+          }
+        }
       },
       () => {
         console.log('pacientov ni bilo mogoce pridoviti');
@@ -144,9 +152,91 @@ export class ObservationInputComponent implements OnInit {
             for (const patient of response) {
               this.patients.push(patient.patient);
             }
+            this.patient = this.observationService.getLoclaPatient();
+            // Za pacienta nastavimo paienta, ki je izbran pri pregledu
+            if (this.patient) {
+              for (const patient of this.patients) {
+                if (this.patient.resource.id === patient.resource.id) {
+                  this.patient = patient;
+                  break;
+                }
+              }
+            }
           }
         });
       }
     );
+  }
+
+  /**
+   * Validatorji za razpon vrednosti, ki jih lahko vnesemo
+   */
+
+  weightValidator(control: FormControl): {[s: string]: boolean} {
+    if ((control.value < 0 || control.value > 300) && control.value !== null) {
+      return {'forbbiden': true};
+    }
+    return null;
+  }
+
+  heartRateValidator(control: FormControl): {[s: string]: boolean} {
+    if ((control.value < 30 || control.value > 220) && control.value !== null) {
+      console.log('napaka utrip');
+      return {'forbbiden': true};
+    }
+    return null;
+  }
+
+  oxygenSaturationValidator(control: FormControl): {[s: string]: boolean} {
+    if ((control.value < 80 || control.value > 100) && control.value !== null) {
+      return {'forbbiden': true};
+    }
+    return null;
+  }
+
+  temperatureValidator(control: FormControl): {[s: string]: boolean} {
+    if ((control.value < 30 || control.value > 47) && control.value !== null) {
+      return {'forbbiden': true};
+    }
+    return null;
+  }
+
+  systolicPressureValidator(control: FormControl): {[s: string]: boolean} {
+    if ((control.value < 70 || control.value > 280) && control.value !== null) {
+      return {'forbbiden': true};
+    }
+    return null;
+  }
+
+  diastolicPressureValidator(control: FormControl): {[s: string]: boolean} {
+    if ((control.value < 40 || control.value > 160) && control.value !== null) {
+      return {'forbbiden': true};
+    }
+    return null;
+  }
+
+  /**
+   * validator za celotno formo, ki preverja ali ima vsaj eno polje vrednost.
+   * @param group
+   * @returns {{forrbiden: boolean}}
+   */
+
+  formValidator(group: FormGroup): {[s: string]: boolean} {
+    let isAtLestOne = false;
+    for (const control in group.controls) {
+      if (group.controls[control].value !== null && control !== 'patient') {
+        if (control === 'bloodPressure') {
+          const bloodPressure: any = group.controls[control];
+          for (const cont in bloodPressure.controls) {
+            if (bloodPressure.controls[cont].value !== null) {
+              isAtLestOne = true;
+            }
+          }
+        } else {
+          isAtLestOne = true;
+        }
+      }
+    }
+    return isAtLestOne ? null : {'forrbiden': true};
   }
 }

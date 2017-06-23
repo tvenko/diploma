@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
-import {ObservationInputComponent} from '../observation-input/observation-input.component';
+import { ObservationInputComponent } from '../observation-input/observation-input.component';
 
 @Component({
   selector: 'app-observations-list',
@@ -99,6 +99,8 @@ export class ObservationListComponent implements OnInit {
         },
       );
     }
+
+    this.observationService.setLocalPatient(this.patient);
   }
 
   /**
