@@ -8,7 +8,7 @@
 
 <!-- spustni seznam izbire pacienta -->
 <form>
-  <md-select placeholder="Pacient" [(ngModel)]="patient" name="patient">
+  <md-select placeholder="pacient" [(ngModel)]="patient" name="patient">
     <md-option *ngFor="let patient of patients" [value]="patient" (click)="getObservations()">
       <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle">
       {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
@@ -20,7 +20,7 @@
 <span *ngIf="patientSpinner">
   <md-spinner color="accent" style="height: 30px;"></md-spinner>
 </span>
-<span *ngIf="patientError" style="color: red;">Pacientov ni bilo mogoče pridobiti</span>
+<span *ngIf="patientError" style="color: #f44336;">Pacientov ni bilo mogoče pridobiti</span>
 
 <!-- izpis seznama meritev -->
 <div class="card-container" *ngIf="patient">
@@ -71,7 +71,7 @@
 
 <!-- ce je prislo do napake -->
 <div *ngIf="observationsError" style="margin: 60px;">
-  <h4 style="color: red;">Meritev ni bilo mogoče pridobiti.</h4>
+  <h4 style="color: #f44336;">Meritev ni bilo mogoče pridobiti.</h4>
   <p>Ste prepričani, da ima paciet že vnešene meritve?</p>
 </div>
 

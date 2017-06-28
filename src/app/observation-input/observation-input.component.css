@@ -8,3 +8,13 @@
   margin-top: 60px;
   font-size: 18px;
 }
+
+.success {
+  margin-top: 30px;
+  color: #66bb6a;
+}
+
+.warn {
+  margin-top: 30px;
+  color: #f44336;
+}

@@ -169,7 +169,6 @@ export class ObservationListComponent implements OnInit {
         this.observations.splice(i, i);
         this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
           if (observations) {
-            console.log(observations);
             for (const el of observations) {
               this.indexedDB.deleteObservtion(el.id);
               this.observationService.deleteObservation(+el.id).subscribe(

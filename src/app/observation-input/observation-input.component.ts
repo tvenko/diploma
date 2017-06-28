@@ -20,6 +20,8 @@ export class ObservationInputComponent implements OnInit {
   entry: any = {};
   bundle: any = {};
   observationForm: FormGroup;
+  postSuccess: boolean;
+  post = false;
 
   constructor(private observationService: ObservationService, private indexedDB: IndexedDBService) { }
 
@@ -82,6 +84,7 @@ export class ObservationInputComponent implements OnInit {
    * Metoda, ki oblikuje objekt meritve in ga poskusa poslati na streznik
    */
   postObservation(): Promise<any> {
+    this.post = false;
     return new Promise((resolve, reject) => {
       let observation: Observation;
 
@@ -114,11 +117,19 @@ export class ObservationInputComponent implements OnInit {
             response => {
               if (response.entry.length === observations.length) {
                 this.indexedDB.deleteAllObservationsQueue().then();
+                this.postSuccess = true;
+                this.post = true;
                 resolve(response.entry.length);
               } else {
-                console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
+                this.postSuccess = false;
+                this.post = true;
+                console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve.');
                 reject();
               }
+            }, error => {
+              this.postSuccess = false;
+              this.post = true;
+              console.log('napaka pri posiljnaju meritev, strežnik ni dosegljiv.');
             }
           );
         } else {
@@ -137,7 +148,7 @@ export class ObservationInputComponent implements OnInit {
       response => {
         this.patients = response.entry;
         this.patient = this.observationService.getLoclaPatient();
-        // Za pacienta nastavimo paienta, ki je izbran pri pregledu
+        // Za pacienta nastavimo pacienta, ki je izbran pri pregledu
         if (this.patient) {
           for (const patient of this.patients) {
             if (this.patient.resource.id === patient.resource.id) {
@@ -183,7 +194,6 @@ export class ObservationInputComponent implements OnInit {
 
   heartRateValidator(control: FormControl): {[s: string]: boolean} {
     if ((control.value < 30 || control.value > 220) && control.value !== null) {
-      console.log('napaka utrip');
       return {'forbbiden': true};
     }
     return null;
@@ -224,21 +234,21 @@ export class ObservationInputComponent implements OnInit {
    */
 
   formValidator(group: FormGroup): {[s: string]: boolean} {
-    let isAtLestOne = false;
+    let isAtLeastOne = false;
     for (const control in group.controls) {
       if (group.controls[control].value !== null && control !== 'patient') {
         if (control === 'bloodPressure') {
           const bloodPressure: any = group.controls[control];
           for (const cont in bloodPressure.controls) {
             if (bloodPressure.controls[cont].value !== null) {
-              isAtLestOne = true;
+              isAtLeastOne = true;
             }
           }
         } else {
-          isAtLestOne = true;
+          isAtLeastOne = true;
         }
       }
     }
-    return isAtLestOne ? null : {'forrbiden': true};
+    return isAtLeastOne ? null : {'forrbiden': true};
   }
 }

@@ -45,3 +45,6 @@
   </div>
   <button md-raised-button color="primary" type="submit" [disabled]="!observationForm.valid">POŠLJI</button>
 </form>
+
+<p *ngIf="postSuccess && post" class="text-center success">Meritve so bile uspešno poslane.</p>
+<p *ngIf="!postSuccess && post" class="text-center warn">Meritev ni bilo mogoče poslati, shranjene so v lokalni bazi.</p>
