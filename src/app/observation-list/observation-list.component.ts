@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ObservationService } from '../shared/services/observation.service';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
 import { ObservationInputComponent } from '../observation-input/observation-input.component';
+import { MdSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-observations-list',
@@ -24,9 +25,12 @@ export class ObservationListComponent implements OnInit {
   total = 10;
   offset = 10;
 
+  test = false;
+
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
-              private observationInput: ObservationInputComponent) { }
+              private observationInput: ObservationInputComponent,
+              private snackBar: MdSnackBar) { }
 
   ngOnInit() {
     // Ob inicializaciji pridobimo meritve in paciente
@@ -39,6 +43,7 @@ export class ObservationListComponent implements OnInit {
    * poskusi pridobiti iz lokalne shrambe IndexedDB
    */
   getObservations() {
+    this.test = true;
     this.observationsError = false;
     this.observationsWaiting = false;
     this.observations = [];
@@ -46,60 +51,60 @@ export class ObservationListComponent implements OnInit {
     if (this.patient) {
       this.observationsWaiting = true;
       // Poskusamo pridobiti meritve s streznika
-      this.observationService.getObservationsByPatient
-      ('patronaza1', (this.page * 10 - 10), this.offset, this.patient.resource.id).subscribe(
-        response => {
-          if (response.entry) {
-            this.observationsWaiting = false;
-            this.offline = false;
-            this.observations = response.entry;
-            this.total = response.total;  // stevilo vseh meritev, potrebujemo za paginacijo
-            for (const observation of this.observations) {
-              // Preverimo ali ima meritev podatek o pacientu
-              if (observation.resource.subject) {
-                // Za dano meritev pridobimo vse podatke o pacientu in jih dodamo v meritev, saj ima originalna meritev
-                // podatek samo o IDju pacienta
-                this.observationService.getPatient(observation.resource.subject.reference).subscribe(
-                  response1 => {
-                    observation.patient = response1;
-                  }
-                );
-              }
-            }
-          } else {
-            this.observationsWaiting = false;
-            this.offline = false;
-            this.observationsError = true;
-          }
-        },
-        // Meritev s streznika ni bilo mogoce pridobiti zato poskusimo pridobiti meritve iz IndexedDB-ja
-        () => {
-          console.log('Meritev ni bilo mogoce pridobiti');
-          const patientId: string = 'Patient/' + this.patient.resource.id;
-          this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset, patientId).then((response) => {
-            this.observations = response[1];
-            // Nastavljen TimeOut na 100ms, da se tabela meritev napolni
-            setTimeout(() => {
-              this.total = this.observations.length;  // stevilo vseh meritev, potrebno za paginacijo
+      setTimeout(() => {  // timeout potreben, da se pravilno nastavi stevilka strani
+        this.observationService.getObservationsByPatient
+        ('patronaza1', (this.page * 10 - 10), this.offset, this.patient.resource.id).subscribe(
+          response => {
+            if (response.entry) {
+              this.observationsWaiting = false;
+              this.offline = false;
+              this.observations = response.entry;
+              this.total = response.total;  // stevilo vseh meritev, potrebujemo za paginacijo
               for (const observation of this.observations) {
-                const id = observation.resource.subject.reference.substring(8); // iz Patient/123456 se pretvori v 123456
-                // Za dano meritev pridobimo vse podatke o pacient iz lokalne shrambe
-                this.indexedDB.getPatient(id).then((patient) => {
-                  observation.patient = patient;
-                });
+                // Preverimo ali ima meritev podatek o pacientu
+                if (observation.resource.subject) {
+                  // Za dano meritev pridobimo vse podatke o pacientu in jih dodamo v meritev, saj ima originalna meritev
+                  // podatek samo o IDju pacienta
+                  this.observationService.getPatient(observation.resource.subject.reference).subscribe(
+                    response1 => {
+                      observation.patient = response1;
+                    }
+                  );
+                }
               }
-              if (this.total === 0) {
-                this.observationsError = true;
-              }
-              }, 100);
-            this.indexedDB.getAllObservations().then((all) => this.total = all.length);
-          });
-          this.offline = true;
-          this.observationsWaiting = false;
-        },
-      );
+            } else {
+              this.observationsWaiting = false;
+              this.offline = false;
+              this.observationsError = true;
+            }
+          },
+          // Meritev s streznika ni bilo mogoce pridobiti zato poskusimo pridobiti meritve iz IndexedDB-ja
+          () => {
+            console.log('Meritev ni bilo mogoce pridobiti');
+            const patientId: string = 'Patient/' + this.patient.resource.id;
+            this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset, patientId).then((response) => {
+              this.observations = response[1];
+              // Nastavljen TimeOut na 100ms, da se tabela meritev napolni
+              setTimeout(() => {
+                this.total = this.observations.length;  // stevilo vseh meritev, potrebno za paginacijo
+                for (const observation of this.observations) {
+                  const id = observation.resource.subject.reference.substring(8); // iz Patient/123456 se pretvori v 123456
+                  // Za dano meritev pridobimo vse podatke o pacient iz lokalne shrambe
+                  this.indexedDB.getPatient(id).then((patient) => {
+                    observation.patient = patient;
+                  });
+                }
+                if (this.total === 0) {
+                  this.observationsError = true;
+                }
+                }, 100);
+              this.indexedDB.getAllObservations().then((all) => this.total = all.length);
+            });
+            this.offline = true;
+            this.observationsWaiting = false;
+          },
+        )}, 10);
     }
-
     this.observationService.setLocalPatient(this.patient);
   }
 
@@ -183,14 +188,17 @@ export class ObservationListComponent implements OnInit {
    * deleteQueue in osvezi meritve, ki jih imamo v lokalni shrambi
    */
   onSinc() {
-    this.observationInput.postObservation();
-    this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
-      if (observations) {
-        for (const observation of observations) {
+    Promise.all([this.observationInput.postObservation(), // pocakamo na vse funkcije in nato prikazemo snackBar.
+      this.indexedDB.getAllObservationsDeleteQueue(),
+      this.indexedDB.storeObservations()]).then(
+      (values: any) => {
+        for (const observation of values[1]) {
           this.onDelete(observation);
         }
+        this.snackBar.open(
+          values[0] + ' poslanih meritev na strežnik, ' + values[1].length + ' izbrisanih meritev na strežniku in ' +
+          values[2] + ' pridobljenih meritev.', 'OK', {duration: 20000, });
       }
-    });
-    this.indexedDB.storeObservations();
+    );
   }
 }

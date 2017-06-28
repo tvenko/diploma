@@ -143,15 +143,18 @@ export class IndexedDBService {
    */
 
   // dodamo meritev v indexedDB, da jo lahk ovrnemo uporabniku, ko je offline
-  addObservation(observation: any, id: number) {
+  addObservation(observation: any, id: number): number {
     this.db.add('observations', {
       observation: observation,
       id: id
     }).then((_observation) => {
       console.log('uspesno dodana meritev ' + _observation);
+      return 1;
     }, (error) => {
       console.log('napaka pri dodajanju meritve ' + error);
+      return 0;
     });
+    return 0;
   }
 
   // Pridobimo vse meritve, ki jih imamo shranjene
@@ -201,19 +204,24 @@ export class IndexedDBService {
   }
 
   // Shranimo prvih 100 meritev v indexedDB, klice se ob inicializaciji baze in sinhronizaciji
-  storeObservations() {
-    this.observationService.getObservations('patronaza1', 0, 100).subscribe(
-      response => {
-        if (response.entry) {
-          for (const observation of response.entry) {
-            this.addObservation(observation, observation.resource.id);
+  storeObservations(): Promise<any> {
+    let i = 0;
+    return new Promise((resolve, reject) => {
+      this.observationService.getObservations('patronaza1', 0, 100).subscribe(
+        response => {
+          if (response.entry) {
+            for (const observation of response.entry) {
+              i += this.addObservation(observation, observation.resource.id);
+            }
+            resolve(i);
           }
-        }
-      },
-      () => {
-        console.log('Meritev ni bilo mogoce shraniti, napaka v pridobivanju');
-      },
-    );
+        },
+        () => {
+          console.log('Meritev ni bilo mogoce shraniti, napaka v pridobivanju');
+          reject();
+        },
+      );
+    });
   }
 
   // Izbrisemo meritev s podanim IDjem
@@ -222,6 +230,14 @@ export class IndexedDBService {
       console.log('uspesno zbrisan');
     }, (error) => {
       console.log('napaka pri brisanj ' + error);
+    });
+  }
+
+  deleteAllObservations() {
+    this.db.clear('observations').then(() => {
+      console.log('uspesno zbrisane vse meritve v IndexedDB');
+    }, (error) => {
+      console.log('napaka pri brisanju meritev ' + error);
     });
   }
 

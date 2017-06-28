@@ -21,8 +21,6 @@ export class ObservationInputComponent implements OnInit {
   bundle: any = {};
   observationForm: FormGroup;
 
-  observationsAmount = 0;
-
   constructor(private observationService: ObservationService, private indexedDB: IndexedDBService) { }
 
   ngOnInit() {
@@ -83,46 +81,50 @@ export class ObservationInputComponent implements OnInit {
   /**
    * Metoda, ki oblikuje objekt meritve in ga poskusa poslati na streznik
    */
-  postObservation() {
+  postObservation(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let observation: Observation;
 
-    let observation: Observation;
+      this.bundle.resourceType = 'Bundle';
+      this.bundle.type = 'transaction';
+      this.bundle.id = 'patronaza-sluzba';
+      this.bundle.entry = [];
 
-    this.bundle.resourceType = 'Bundle';
-    this.bundle.type = 'transaction';
-    this.bundle.id = 'patronaza-sluzba';
-    this.bundle.entry = [];
+      this.request.method = 'POST';
+      this.entry.request = this.request;
 
-    this.request.method = 'POST';
-    this.entry.request = this.request;
-
-    this.indexedDB.getAllObservationsQueue().then((observations) => {
-      if (observations.length > 0) {
-        for (const el of observations) {
-          const entry: any = {};
-          entry.request = this.request;
-          observation = new Observation();
-          if (el.patient) {
-            // zgeneriramo objekt meritve
-            entry.resource = (observation.createObservable(el.value, el.type, el.subtype, el.patient));
-          } else {
-            console.log('meritvi manjka pacient');
-          }
-          if (entry.resource !== null) {
-            this.bundle.entry.push(entry);
-          }
-        }
-        // Meritve poskusimo poslati na streznik, ce uspe meritve pobrisemo iz vrste
-        this.observationService.post(this.bundle).subscribe(
-          response => {
-            if (response.entry.length === observations.length) {
-              this.indexedDB.deleteAllObservationsQueue().then();
-               this.observationsAmount = response.entry.length;
+      this.indexedDB.getAllObservationsQueue().then((observations) => {
+        if (observations.length > 0) {
+          for (const el of observations) {
+            const entry: any = {};
+            entry.request = this.request;
+            observation = new Observation();
+            if (el.patient) {
+              // zgeneriramo objekt meritve
+              entry.resource = (observation.createObservable(el.value, el.type, el.subtype, el.patient));
             } else {
-              console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
+              console.log('meritvi manjka pacient');
+            }
+            if (entry.resource !== null) {
+              this.bundle.entry.push(entry);
             }
           }
-        );
-      }
+          // Meritve poskusimo poslati na streznik, ce uspe meritve pobrisemo iz vrste
+          this.observationService.post(this.bundle).subscribe(
+            response => {
+              if (response.entry.length === observations.length) {
+                this.indexedDB.deleteAllObservationsQueue().then();
+                resolve(response.entry.length);
+              } else {
+                console.log('napaka pri posiljnaju meritev, niso bile sprejete vse meritve');
+                reject();
+              }
+            }
+          );
+        } else {
+          resolve(0);
+        }
+      });
     });
   }
 
@@ -169,7 +171,7 @@ export class ObservationInputComponent implements OnInit {
   }
 
   /**
-   * Validatorji za razpon vrednosti, ki jih lahko vnesemo
+   * Validatorji za razpon vrednosti meritev, ki jih lahko vnesemo.
    */
 
   weightValidator(control: FormControl): {[s: string]: boolean} {
