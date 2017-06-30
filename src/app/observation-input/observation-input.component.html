@@ -14,32 +14,38 @@
   <p>
     <md-input-container>
       <input mdInput placeholder="telesna teža" type="number" formControlName="bodyWeight">
+      <span md-suffix class="unit">kg</span>
     </md-input-container>
   </p>
   <p>
     <md-input-container>
       <input mdInput placeholder="srčni utrip" type="number" formControlName="heartRate">
+      <span md-suffix class="unit">/min</span>
     </md-input-container>
   </p>
   <p>
     <md-input-container>
       <input mdInput placeholder="oksigeniranost" type="number" formControlName="oxygenSaturation">
+      <span md-suffix class="unit">%</span>
     </md-input-container>
   </p>
   <p>
     <md-input-container>
       <input mdInput placeholder="telesna temperatura" type="number" formControlName="bodyTemperature">
+      <span md-suffix class="unit">kg</span>
     </md-input-container>
   </p>
   <div formGroupName="bloodPressure">
     <p>
       <md-input-container>
         <input mdInput placeholder="krvni pritisk sistolični" type="number" formControlName="systolicPressure">
+        <span md-suffix class="unit">mm/Hg</span>
       </md-input-container>
     </p>
     <p>
       <md-input-container>
         <input mdInput placeholder="krvni pritisk diastilični" type="number" formControlName="diastolicPressure">
+        <span md-suffix class="unit">mm/Hg</span>
       </md-input-container>
     </p>
   </div>
