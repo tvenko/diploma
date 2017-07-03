@@ -176,26 +176,28 @@ export class IndexedDBService {
   // Pridobim meritve iz intervala podanega s start in stop, ki ustrezajo pacientu s IDjem enakim patientId
   getObservationRange(start: number, stop: number, patinetId: string) {
     return new Promise((resolve) => {
-      let i = 0;
+      let total = 0;
       const observations: any = [];
       const response: any = [];
       this.db.openCursor('observations', (evt) => {
         const cursor = evt.target.result;
         if (cursor) {
           // Preverimo ali je meritev sploh veljavna
-          // Neveljavna je lahko, ce zbrisemo meritev, vendar se na strezniku se ne pobrise popolno ampak samo ni ma vrednosti
+          // Neveljavna je lahko, ce zbrisemo meritev, vendar se na strezniku se ne pobrise popolno ampak samo nima vrednosti
           if (cursor.value.observation.resource.subject) {
-            if (i >= start && i < stop && cursor.value.observation.resource.subject.reference === patinetId) {
-              observations.push(cursor.value.observation);
+            if (cursor.value.observation.resource.subject.reference === patinetId) {
+              if (total >= start && total < stop) {
+                observations.push(cursor.value.observation);
+              }
+              total++;
             }
-            i++;
           } else {
             // ce obstaja neveljavna meritev v IndexedDB jo pobrisemo
             this.deleteObservtion(cursor.value.id);
           }
           cursor.continue();
         } else {
-          response[0] = i;
+          response[0] = total;
         }
       });
       response[1] = observations;

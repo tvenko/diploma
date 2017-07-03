@@ -83,7 +83,9 @@ export class ObservationListComponent implements OnInit {
               this.observations = response[1];
               // Nastavljen TimeOut na 100ms, da se tabela meritev napolni
               setTimeout(() => {
-                this.total = this.observations.length;  // stevilo vseh meritev, potrebno za paginacijo
+                // this.total = this.observations.length;  // stevilo vseh meritev, potrebno za paginacijo
+                console.log('total: ', response[0]);
+                this.total = response[0];
                 for (const observation of this.observations) {
                   const id = observation.resource.subject.reference.substring(8); // iz Patient/123456 se pretvori v 123456
                   // Za dano meritev pridobimo vse podatke o pacient iz lokalne shrambe
@@ -94,7 +96,7 @@ export class ObservationListComponent implements OnInit {
                 if (this.total === 0) {
                   this.observationsError = true;
                 }
-                }, 100);
+                }, 1000);
               this.indexedDB.getAllObservations().then((all) => this.total = all.length);
             });
             this.offline = true;
