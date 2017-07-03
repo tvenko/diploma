@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-main-navbar',
@@ -8,9 +8,9 @@ import { Router } from '@angular/router';
 })
 export class MainNavbarComponent {
 
-  constructor(private router: Router) { }
+  constructor(private userService: UserService) { }
 
   onLogOut() {
-    this.router.navigate(['/prijava']);
+    this.userService.logout();
   }
 }

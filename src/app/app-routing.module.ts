@@ -5,13 +5,14 @@ import { RegistrationComponent } from './registration/registration.component';
 import { ObservationInputComponent } from './observation-input/observation-input.component';
 import { ObservationListComponent } from './observation-list/observation-list.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { AuthGuard } from './shared/services/auth-guard.service';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/prijava', pathMatch: 'full'},
   { path: 'prijava', component: LoginComponent },
   { path: 'registracija', component: RegistrationComponent },
-  { path: 'meritve', component: ObservationListComponent },
-  { path: 'meritve/vnos', component: ObservationInputComponent },
+  { path: 'meritve', component: ObservationListComponent, canActivate: [AuthGuard] },
+  { path: 'meritve/vnos', component: ObservationInputComponent, canActivate: [AuthGuard] },
   { path: 'not-found', component: PageNotFoundComponent},
   { path: '**', redirectTo: '/not-found'}
 ];

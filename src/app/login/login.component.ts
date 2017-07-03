@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
+import { UserService } from '../shared/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,7 @@ export class LoginComponent implements OnInit {
   user: {name: string, surname: string, email: string, password: string, id: number};
   loginFail = false;
 
-  constructor (private router: Router, private indexedDB: IndexedDBService) { }
+  constructor (private router: Router, private indexedDB: IndexedDBService, private userService: UserService) { }
 
   ngOnInit() {
     this.loginForm = new FormGroup({
@@ -24,17 +25,23 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    this.indexedDB.getByEmail(this.loginForm.controls.email.value).then((user) => {
-      this.user = user;
-      if (this.user.password === this.loginForm.controls.password.value) {
-        this.router.navigate(['meritve']);
-      } else {
+    // this.indexedDB.getByEmail(this.loginForm.controls.email.value).then((user) => {
+    //   this.user = user;
+    //   if (this.user.password === this.loginForm.controls.password.value) {
+    //     this.router.navigate(['meritve']);
+    //   } else {
+    //     this.loginFail = true;
+    //     this.loginForm.controls.password.reset();
+    //   }
+    // }, () => {
+    //   this.loginFail = true;
+    //   this.loginForm.controls.password.reset();
+    // });
+    this.userService.signInUser(this.loginForm.controls.email.value, this.loginForm.controls.password.value)
+      .catch(() => {
         this.loginFail = true;
         this.loginForm.controls.password.reset();
       }
-    }, () => {
-      this.loginFail = true;
-      this.loginForm.controls.password.reset();
-    });
+    );
   }
 }

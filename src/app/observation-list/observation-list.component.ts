@@ -25,8 +25,6 @@ export class ObservationListComponent implements OnInit {
   total = 10;
   offset = 10;
 
-  test = false;
-
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
               private observationInput: ObservationInputComponent,
@@ -43,7 +41,6 @@ export class ObservationListComponent implements OnInit {
    * poskusi pridobiti iz lokalne shrambe IndexedDB
    */
   getObservations() {
-    this.test = true;
     this.observationsError = false;
     this.observationsWaiting = false;
     this.observations = [];

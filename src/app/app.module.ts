@@ -20,6 +20,8 @@ import { LoginNavbarComponent } from './shared/login-navbar/login-navbar.compone
 import { MainNavbarComponent } from './shared/main-navbar/main-navbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AngularIndexedDB } from './shared/services/AngularIndexedDB';
+import { UserService } from './shared/services/user.service';
+import {AuthGuard} from './shared/services/auth-guard.service';
 
 @NgModule({
   declarations: [
@@ -44,7 +46,7 @@ import { AngularIndexedDB } from './shared/services/AngularIndexedDB';
     ReactiveFormsModule,
     NgbModule.forRoot()
   ],
-  providers: [ObservationService, IndexedDBService, AngularIndexedDB, ObservationInputComponent],
+  providers: [ObservationService, IndexedDBService, AngularIndexedDB, ObservationInputComponent, UserService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

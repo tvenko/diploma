@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
+import { UserService } from '../shared/services/user.service';
 
 @Component({
   selector: 'app-registration',
@@ -12,7 +13,7 @@ export class RegistrationComponent implements OnInit {
 
   registrationForm: FormGroup;
 
-  constructor(private router: Router, private indexedDB: IndexedDBService) { }
+  constructor(private router: Router, private indexedDB: IndexedDBService, private userService: UserService) { }
 
   ngOnInit() {
     this.registrationForm = new FormGroup ({
@@ -30,6 +31,10 @@ export class RegistrationComponent implements OnInit {
   onRegister() {
     this.indexedDB.addUser(this.registrationForm.controls.name.value, this.registrationForm.controls.surname.value,
       this.registrationForm.controls.email.value, this.registrationForm.controls.password.value);
+    this.userService.signUpUser(
+      this.registrationForm.controls.email.value,
+      this.registrationForm.controls.password.value,
+      this.registrationForm.controls.name.value + ' ' + this.registrationForm.controls.surname.value);
     this.router.navigate(['/prijava']);
   }
 
