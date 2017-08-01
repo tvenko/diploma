@@ -17,7 +17,7 @@ if (navigator.onLine) {
     { path: 'registracija', component: RegistrationComponent },
     { path: 'meritve', component: ObservationListComponent, canActivate: [AuthGuard] },
     { path: 'meritve/vnos', component: ObservationInputComponent, canActivate: [AuthGuard] },
-    { path: '/priprava', component: PreparationComponent, canActivate: [AuthGuard]},
+    { path: 'priprava', component: PreparationComponent, canActivate: [AuthGuard]},
     { path: 'not-found', component: PageNotFoundComponent},
     { path: '**', redirectTo: '/not-found'}
   ];
@@ -30,7 +30,6 @@ if (navigator.onLine) {
     { path: '**', redirectTo: '/not-found'}
   ];
 }
-
 
 @NgModule({
   imports: [RouterModule.forRoot(appRoutes)],

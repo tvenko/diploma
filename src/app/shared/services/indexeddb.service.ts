@@ -52,7 +52,7 @@ export class IndexedDBService {
 
     }).then(() => {
       this.storeObservations();
-      this.storePatients();
+      // this.storePatients();
     });
   }
 
@@ -314,6 +314,17 @@ export class IndexedDBService {
     );
   }
 
+  addPatient(patient: any) {
+    this.db.add('patients', {
+      patient: patient,
+      id: patient.resource.id
+    }).then((_patient) => {
+      console.log('uspesno dodan pacient ' + _patient);
+    }, (error) => {
+      console.log('napaka pri dodajanju pacienta ' + error);
+    });
+  }
+
   // Pridobimo vse shranjene paciente
   getAllPatients() {
     return new Promise((resolve, reject) => {
@@ -341,6 +352,14 @@ export class IndexedDBService {
       }, (error) => {
         console.log('napaka pri pridobivanju pacienta ' + error);
       });
+    });
+  }
+
+  deletePatient(id: number) {
+    this.db.delete('patients', id).then(() => {
+      console.log('pacient uspesno zbrisan');
+    }, (error) => {
+      console.log('napaka pri brisanju pacienta ' + error);
     });
   }
 }

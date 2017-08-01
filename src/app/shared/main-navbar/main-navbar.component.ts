@@ -9,13 +9,11 @@ import { UserService } from '../services/user.service';
 export class MainNavbarComponent implements OnInit {
 
   online: boolean;
-  offline = false;
 
   constructor(private userService: UserService) { }
 
   ngOnInit() {
     this.online = navigator.onLine;
-    console.log('logout: ', this.online);
   }
 
   onLogOut() {

@@ -1,3 +1,56 @@
-<p>
-  preparation works!
-</p>
+<app-main-navbar></app-main-navbar>
+<div class="myAutoComplite">
+  Dodaj pacienta v lokalno shrambo:
+  <md-input-container>
+    <input mdInput placeholder="Pacient" [mdAutocomplete]="auto" [formControl]="patientCtrl">
+  </md-input-container>
+
+  <md-autocomplete #auto="mdAutocomplete">
+    <md-option *ngFor="let patient of filteredPatients | async" ([value])="patient" (click)="addPatient(patient)" >
+      <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle">
+      {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
+    </md-option>
+  </md-autocomplete>
+</div>
+<hr>
+<!--<div *ngFor="let patient of localPatients">-->
+  <!--<img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle">-->
+  <!--{{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}-->
+  <!--<i class="fa fa-trash-o trash" aria-hidden="true" (click)="deletePatient(patient)"></i>-->
+<!--</div>-->
+
+
+<div class="panel panel-default">
+   <!--Naslov tabele -->
+  <div class="panel-heading">Seznam pacientov v lokalni shrambi</div>
+
+  <!-- vsebina tabele -->
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>id</th>
+        <th>fotografija</th>
+        <th>ime</th>
+        <th>priimek</th>
+        <th>naslov</th>
+        <th>kraj</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let patient of localPatients; let i = index">
+          <td>{{ i+1 }}</td>
+          <td>{{ patient.resource.id }}</td>
+          <td><img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle"></td>
+          <td>{{ patient.resource.name[0]?.given[0] }}</td>
+          <td>{{ patient.resource.name[0]?.family }}</td>
+          <td>{{ patient.resource.address[0]?.line[0] }}</td>
+          <td>{{ patient.resource.address[0]?.city }}</td>
+          <td><button md-raised-button (click)="addObservations(patient)">Vnesi meritve</button></td>
+          <td><i class="fa fa-trash-o trash" aria-hidden="true" (click)="deletePatient(patient)"></i></td>
+        </tr>
+    </tbody>
+  </table>
+</div>
