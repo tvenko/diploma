@@ -1,0 +1,33 @@
+<Bundle xmlns="http://hl7.org/fhir">
+   <type value="transaction"/>
+   <entry>
+      <resource>
+         <Patient xmlns="http://hl7.org/fhir">
+            <identifier>
+               <value value="patronaza1"/>
+            </identifier>
+            <name>
+               <family value="Angina"/>
+               <given value="Tina"/>
+            </name>
+            <gender value="female"/>
+            <birthDate value="1951-01-31"/>
+            <address>
+                <use value="home"/>
+                <city value="Ljubljana"/>
+                <postalCode value="1000"/>
+                <country value="Slovenia"/>
+                <line value="Večna pot 113"/>
+            </address>
+            <photo>
+                <contentType value="image/jpeg"/>
+                <url value="https://upload.wikimedia.org/wikipedia/commons/f/f1/Haylinggranny.jpg"/>
+            </photo>
+         </Patient>
+      </resource>
+      <request>
+         <method value="POST"/>
+         <url value="Patient"/>
+      </request>
+   </entry>
+</Bundle>

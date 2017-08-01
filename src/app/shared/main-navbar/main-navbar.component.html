@@ -3,6 +3,9 @@
   <span class="spacer"></span>
   <a md-button class="my-navbar" routerLink="/meritve">pregled</a>
   <a md-button class="my-navbar" routerLink="/meritve/vnos">vnos</a>
-  <a md-button class="my-navbar" (click)="onLogOut()" routerLink="/">odjava</a>
+  <div *ngIf="online">
+    <a md-button class="my-navbar" (click)="onLogOut()" routerLink="/">odjava</a>
+    <a md-button class="my-navbar" routerLink="/priprava">priprava</a>
+  </div>
   <a href="https://github.com/tvenko/diploma"><img src="../../../assets/github.svg" alt="github"></a>
 </md-toolbar>

@@ -22,6 +22,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AngularIndexedDB } from './shared/services/AngularIndexedDB';
 import { UserService } from './shared/services/user.service';
 import {AuthGuard} from './shared/services/auth-guard.service';
+import { PreparationComponent } from './preparation/preparation.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import {AuthGuard} from './shared/services/auth-guard.service';
     PageNotFoundComponent,
     LoginNavbarComponent,
     MainNavbarComponent,
+    PreparationComponent,
   ],
   imports: [
     BrowserModule,

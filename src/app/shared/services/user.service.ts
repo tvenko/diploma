@@ -39,8 +39,10 @@ export class UserService {
         .then((user) => {
           this.token = user.token;
           this.router.navigate(['meritve']);
-          const name = user.displayName.split(' ');
-          this.indexedDB.addUser(name[0], name[1], user.email, user.photoURL);
+          if (user.displayName) {
+            const name = user.displayName.split(' ');
+            this.indexedDB.addUser(name[0], name[1], user.email, user.photoURL);
+          }
         })
         // Prijava s FireBase ni uspela, email in password preverimo s podatki, ki jih imamo shranjene v lokalni shrambi.
         .catch(error => {

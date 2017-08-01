@@ -1,6 +1,6 @@
 <app-main-navbar></app-main-navbar>
 
-<h3>Testni seznam meritev
+<h3>Seznam meritev
   <button md-button color="primary" (click)="onSinc()" align="end" style="float: right;">SINHRONIZIRAJ</button>
 </h3>
 
@@ -9,7 +9,7 @@
 <!-- spustni seznam izbire pacienta -->
 <form>
   <md-select placeholder="pacient" [(ngModel)]="patient" name="patient">
-    <md-option *ngFor="let patient of patients" [value]="patient" (click)="getObservations()">
+    <md-option *ngFor="let patient of patients" [value]="patient" (click)="selectPatient()">
       <img [src]="patient.resource.photo[0].url" alt="avatar" class="avatar img-circle">
       {{ patient.resource.name[0]?.given[0] }} {{ patient.resource.name[0]?.family }}
     </md-option>

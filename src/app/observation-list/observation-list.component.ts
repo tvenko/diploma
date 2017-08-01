@@ -34,6 +34,8 @@ export class ObservationListComponent implements OnInit {
     // Ob inicializaciji pridobimo meritve in paciente
     this.getObservations();
     this.getPatients();
+    const online = navigator.onLine;
+    console.log(online);
   }
 
   /**
@@ -105,6 +107,11 @@ export class ObservationListComponent implements OnInit {
         )}, 10);
     }
     this.observationService.setLocalPatient(this.patient);
+  }
+
+  selectPatient() {
+    this.page = 1;
+    this.getObservations();
   }
 
   /**

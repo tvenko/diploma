@@ -6,16 +6,31 @@ import { ObservationInputComponent } from './observation-input/observation-input
 import { ObservationListComponent } from './observation-list/observation-list.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { AuthGuard } from './shared/services/auth-guard.service';
+import { PreparationComponent } from './preparation/preparation.component';
 
-const appRoutes: Routes = [
-  { path: '', redirectTo: '/prijava', pathMatch: 'full'},
-  { path: 'prijava', component: LoginComponent },
-  { path: 'registracija', component: RegistrationComponent },
-  { path: 'meritve', component: ObservationListComponent, canActivate: [AuthGuard] },
-  { path: 'meritve/vnos', component: ObservationInputComponent, canActivate: [AuthGuard] },
-  { path: 'not-found', component: PageNotFoundComponent},
-  { path: '**', redirectTo: '/not-found'}
-];
+let appRoutes: Routes;
+
+if (navigator.onLine) {
+  appRoutes = [
+    { path: '', redirectTo: '/prijava', pathMatch: 'full'},
+    { path: 'prijava', component: LoginComponent },
+    { path: 'registracija', component: RegistrationComponent },
+    { path: 'meritve', component: ObservationListComponent, canActivate: [AuthGuard] },
+    { path: 'meritve/vnos', component: ObservationInputComponent, canActivate: [AuthGuard] },
+    { path: '/priprava', component: PreparationComponent, canActivate: [AuthGuard]},
+    { path: 'not-found', component: PageNotFoundComponent},
+    { path: '**', redirectTo: '/not-found'}
+  ];
+} else {
+  appRoutes = [
+    { path: '', redirectTo: '/meritve', pathMatch: 'full'},
+    { path: 'meritve', component: ObservationListComponent, canActivate: [AuthGuard] },
+    { path: 'meritve/vnos', component: ObservationInputComponent, canActivate: [AuthGuard] },
+    { path: 'not-found', component: PageNotFoundComponent},
+    { path: '**', redirectTo: '/not-found'}
+  ];
+}
+
 
 @NgModule({
   imports: [RouterModule.forRoot(appRoutes)],

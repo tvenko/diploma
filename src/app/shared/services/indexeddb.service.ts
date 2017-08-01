@@ -13,7 +13,6 @@ export class IndexedDBService {
   /**
    *  Inicializacija IndexedDB lokalne podatkovne baze.
    */
-
   initializeDB() {
     this.db = new AngularIndexedDB();
     this.db.createStore(this.DB_VERSION, (evt) => {
