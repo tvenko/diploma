@@ -159,7 +159,7 @@ export class ObservationInputComponent implements OnInit {
         }
       },
       () => {
-        console.log('pacientov ni bilo mogoce pridoviti');
+        console.log('pacientov ni bilo mogoce pridobiti');
         this.indexedDB.getAllPatients().then((response: any) => {
           if (response) {
             for (const patient of response) {

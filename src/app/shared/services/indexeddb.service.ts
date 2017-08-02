@@ -21,6 +21,7 @@ export class IndexedDBService {
         'observations', {keyPath: 'id', autoIncrement: true});
 
       objectStore.createIndex('id', 'id', {unique: true});
+      objectStore.createIndex('patientId', 'patientId', {unique: false});
       objectStore.createIndex('observation', 'observation', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
@@ -30,6 +31,7 @@ export class IndexedDBService {
       objectStore.createIndex('value', 'value', {unique: false});
       objectStore.createIndex('subtype', 'subtype', {unique: false});
       objectStore.createIndex('patient', 'patient', {unique: false});
+      objectStore.createIndex('date', 'date', {unique: false});
 
       objectStore = evt.currentTarget.result.createObjectStore(
         'deleteQueue', {keyPath: 'id', autoIncrement: true});
@@ -41,52 +43,6 @@ export class IndexedDBService {
 
       objectStore.createIndex('id', 'id', {unique: true});
       objectStore.createIndex('patient', 'patient', {unique: false});
-
-      objectStore = evt.currentTarget.result.createObjectStore(
-        'users', {keyPath: 'id', autoIncrement: true});
-
-      objectStore.createIndex('name', 'name', {unique: false});
-      objectStore.createIndex('surname', 'surname', {unique: false});
-      objectStore.createIndex('email', 'email', {unique: true});
-      objectStore.createIndex('password', 'password', {unique: false});
-
-    }).then(() => {
-      this.storeObservations();
-      // this.storePatients();
-    });
-  }
-
-  /**
-   * Metode za dodajanje in pridobivanje uporabnikov (patronazne sestre).
-   */
-
-  // Ob registraciji dodamo uporabnika v indexedDB
-  addUser(name: string, surname: string, email: string, password: string) {
-    this.db.add('users', {
-      name: name,
-      surname: surname,
-      email: email,
-      password: password }).then((user) => {
-        console.log('registracija uspesna ' + user);
-      }, (error) => {
-        console.log('napaka pri registraciji: ' + error);
-      }
-    );
-  }
-
-  // pridobimo uporabnika iz IndexedDB glede na email
-  getByEmail(email: string): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-      this.db.getByIndex('users', 'email', email).then((user) => {
-        if (user) {
-          resolve(user);
-        } else {
-          reject();
-        }
-      }, (error) => {
-        console.log('uporabnik s ' + email + ' ne obstaja.' + error);
-        reject();
-      });
     });
   }
 
@@ -100,7 +56,8 @@ export class IndexedDBService {
       type: type,
       value: value,
       subtype: subtype,
-      patient: patient
+      patient: patient,
+      date: new Date()
     }).then((observation) => {
       console.log('uspesno dodana meritev v vrsto ' + observation);
     }, (error) => {
@@ -121,6 +78,21 @@ export class IndexedDBService {
         console.log('napaka pri pridobivanju meritev iz vrste ' + error);
         reject();
       });
+    });
+  }
+
+  getObservationFromQueueByPatient(patientId: number) {
+    return new Promise((resolve) => {
+      const patients = [];
+      this.db.openCursor('observationQueue', (evt) => {
+        const cursor = evt.target.result;
+        if (cursor) {
+          if (cursor.value.patient === patientId.toString()){
+            patients.push(cursor.value);
+          }
+          cursor.continue();
+        }
+      }, resolve(patients));
     });
   }
 
@@ -145,7 +117,8 @@ export class IndexedDBService {
   addObservation(observation: any, id: number): number {
     this.db.add('observations', {
       observation: observation,
-      id: id
+      id: id,
+      patientId: observation.resource.subject.reference.split('/')[1]
     }).then((_observation) => {
       console.log('uspesno dodana meritev ' + _observation);
       return 1;
@@ -169,6 +142,25 @@ export class IndexedDBService {
         console.log('napaka pri pridobivanju meritev ' + error);
         reject();
       });
+    });
+  }
+
+  getObservationsById(id: string) {
+    const observations: any = [];
+    return new Promise((resolve) => {
+      this.db.openCursor('observations', (evt) => {
+        const cursor = evt.target.result;
+        if (cursor) {
+          console.log(cursor.value.observation);
+          if (cursor.value.observation.resource.subject) {
+            if (cursor.value.observation.resource.subject.reference === id) {
+              observations.push(cursor.value.observation);
+            }
+          }
+          cursor.continue();
+        }
+      });
+      resolve(observations);
     });
   }
 
@@ -232,6 +224,15 @@ export class IndexedDBService {
     }, (error) => {
       console.log('napaka pri brisanj ' + error);
     });
+  }
+
+  deleteObseravtionByPatient(patientId: number) {
+    this.db.getByIndex('observations', 'patientId', patientId.toString()).then((observation) => {
+      if (observation) {
+        this.deleteObservtion(observation.id);
+        this.deleteObseravtionByPatient(patientId);
+      }
+    }, (error) => console.log(error));
   }
 
   deleteAllObservations() {
@@ -361,5 +362,10 @@ export class IndexedDBService {
     }, (error) => {
       console.log('napaka pri brisanju pacienta ' + error);
     });
+  }
+
+  deleteAllPatients() {
+    this.db.clear('patients').then(() => console.log('uspesno zbrisani vsi pacienti'),
+      (error) => console.log('napaka pri brisanju pacientov', error))
   }
 }

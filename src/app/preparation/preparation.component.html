@@ -22,7 +22,7 @@
 
 <div class="panel panel-default">
    <!--Naslov tabele -->
-  <div class="panel-heading">Seznam pacientov v lokalni shrambi</div>
+  <div class="panel-heading"><h4>Seznam pacientov v lokalni shrambi</h4></div>
 
   <!-- vsebina tabele -->
   <table class="table">
@@ -48,7 +48,7 @@
           <td>{{ patient.resource.name[0]?.family }}</td>
           <td>{{ patient.resource.address[0]?.line[0] }}</td>
           <td>{{ patient.resource.address[0]?.city }}</td>
-          <td><button md-raised-button (click)="addObservations(patient)">Vnesi meritve</button></td>
+          <td><button md-raised-button (click)="addObservations(patient)" color="accent" style="color: white;">Vnesi meritve</button></td>
           <td><i class="fa fa-trash-o trash" aria-hidden="true" (click)="deletePatient(patient)"></i></td>
         </tr>
     </tbody>

@@ -61,10 +61,26 @@ export class PreparationComponent implements OnInit {
         }
       }
     });
+    this.getObservationByCode(+patient.resource.id, '3141-9'); // body weight;
+    this.getObservationByCode(+patient.resource.id, '8867-4');  // heart rate
+    this.getObservationByCode(+patient.resource.id, '59408-5');  // oxygen saturation
+    this.getObservationByCode(+patient.resource.id, '55284-4');  // blood pressure
+    this.getObservationByCode(+patient.resource.id, '8310-5');  // body temperature
+  }
+
+  getObservationByCode(id: number, code: string) {
+    this.observationService.getObservationByPatientAndCode('patronaza1', 1, id, code).subscribe(
+      response => {
+        if (response.entry) {
+          this.indexedDB.addObservation(response.entry[0], response.entry[0].resource.id)
+        }
+      }
+    );
   }
 
   deletePatient(patient: any) {
     this.indexedDB.deletePatient(patient.resource.id);
+    this.indexedDB.deleteObseravtionByPatient(+patient.resource.id);
     this.localPatients = [];
     this.indexedDB.getAllPatients().then((response: any) => {
       if (response) {

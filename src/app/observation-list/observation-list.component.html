@@ -33,9 +33,9 @@
         </md-card-title>
         <md-card-content class="card-container">
           ID: {{ observation.resource.id }} <br>
-          TYPE: {{ observation.resource.code?.text }} <br>
-          VALUE: {{ observation.resource.valueQuantity?.value }} {{ observation.resource.valueQuantity?.unit }} <br>
-          DATE: {{ observation.resource.meta?.lastUpdated | date}}
+          TIP: {{ observation.resource.code?.text }} <br>
+          VREDNOST: {{ observation.resource.valueQuantity?.value }} {{ observation.resource.valueQuantity?.unit }} <br>
+          DATUM: {{ observation.resource.meta?.lastUpdated | date}}
         </md-card-content>
         <md-card-actions align="end">
           <button md-button color="primary" (click)="onDelete(observation, i)">IZBRIŠI</button>
@@ -49,16 +49,59 @@
         </md-card-title>
         <md-card-content class="card-container">
           ID: {{ observation.resource.id }} <br>
-          TYPE: {{ observation.resource.component[0].code?.text }} <br>
-          VALUE: {{ observation.resource.component[0].valueQuantity?.value }} {{ observation.resource.component[0].valueQuantity?.unit }} <br>
+          TIP: {{ observation.resource.component[0].code?.text }} <br>
+          VREDNOST: {{ observation.resource.component[0].valueQuantity?.value }} {{ observation.resource.component[0].valueQuantity?.unit }} <br>
           <br>
-          TYPE: {{ observation.resource.component[1].code?.text }} <br>
-          VALUE: {{ observation.resource.component[1].valueQuantity?.value }} {{ observation.resource.component[0].valueQuantity?.unit }} <br>
-          DATE: {{ observation.resource.meta?.lastUpdated | date}}
+          TIP: {{ observation.resource.component[1].code?.text }} <br>
+          VREDNOST: {{ observation.resource.component[1].valueQuantity?.value }} {{ observation.resource.component[0].valueQuantity?.unit }} <br>
+          DATUM: {{ observation.resource.meta?.lastUpdated | date}}
           <br>
         </md-card-content>
         <md-card-actions align="end">
           <button md-button color="primary" (click)="onDelete(observation, i)">IZBRIŠI</button>
+        </md-card-actions>
+      </div>
+    </md-card>
+  </div>
+</div>
+
+<!-- izpis seznama meritev iz vrste meritev -->
+<div class="card-container" *ngIf="patient">
+  <div *ngFor="let observation of queueObservations; let i = index">
+    <md-card>
+      <div *ngIf="!(observation.type == 'bloodPressure')">
+        <md-card-title>
+          {{ observation.patient }}
+        </md-card-title>
+        <md-card-content class="card-container">
+          VREDNOST: {{ observation.value }}  <br>
+          TIP: {{ observation.type }} <br>
+          DATUM: {{ observation.date | date}}
+          <div *ngIf="(observation.type == 'bodyWeight')">kg</div>
+          <div *ngIf="(observation.type == 'bodyTemperature')">cel</div>
+          <div *ngIf="(observation.type == 'heartRate')">/min</div>
+          <div *ngIf="observation.type == 'oxygenSaturation'">%</div>
+        </md-card-content>
+        <md-card-actions align="end">
+          <button md-button color="primary">IZBRIŠI</button>
+        </md-card-actions>
+      </div>
+
+      <div *ngIf="observation.type == 'bloodPressure'">
+        <md-card-title>
+          {{ observation.patient }}
+        </md-card-title>
+        <md-card-content class="card-container">
+          VREDNOST: {{ observation.subtype[0]?.value }} mm/Hg<br>
+          TIP: {{ observation.subtype[0]?.type }} <br>
+          <br>
+          VREDNOST: {{ observation.subtype[1]?.value }} mm/Hg<br>
+          TIP: {{ observation.subtype[1]?.type }} <br>
+          DATUM: {{ observation.date | date}}
+          <br>
+        </md-card-content>
+        <md-card-actions align="end">
+          <button md-button color="primary">IZBRIŠI</button>
         </md-card-actions>
       </div>
     </md-card>
@@ -81,7 +124,7 @@
 </div>
 
 <!-- paginacija -->
-<div class="text-center">
+<div class="text-center" *ngIf="pagination">
   <ngb-pagination
     [collectionSize]=total
     [(page)]="page"

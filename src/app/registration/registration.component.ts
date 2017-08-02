@@ -29,8 +29,6 @@ export class RegistrationComponent implements OnInit {
    * Metoda, ki se poklice ob kliku gumba registracija in doda novega uporabnika v IndexedDB
    */
   onRegister() {
-    this.indexedDB.addUser(this.registrationForm.controls.name.value, this.registrationForm.controls.surname.value,
-      this.registrationForm.controls.email.value, this.registrationForm.controls.password.value);
     this.userService.signUpUser(
       this.registrationForm.controls.email.value,
       this.registrationForm.controls.password.value,

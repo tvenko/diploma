@@ -29,9 +29,17 @@ export class ObservationService {
       );
   }
 
+  getObservationByPatientAndCode(identifier: string, count: number, patientId: number, code: string) {
+    return this.http.get('https://fhirtest.uhn.ca/baseDstu3/Observation?identifier='
+      + identifier + '&_count=' + count + '&patient=' + patientId + '&code=' + code)
+      .map(
+        (response: Response) => response.json()
+      );
+  }
+
   // S streznika pridobimo vse paciente, ki smo si jih kreirali na strezniku, identifier poskrbi, da dobimo sam osvoje paciente
   getPatients(identifier: string) {
-    return this.http.get('https://fhirtest.uhn.ca/baseDstu3/Patient?identifier=' + identifier)
+    return this.http.get('https://fhirtest.uhn.ca/baseDstu3/Patient?identifier=' + identifier + '&_sort=family')
       .map(
         (response: Response) => response.json()
       );

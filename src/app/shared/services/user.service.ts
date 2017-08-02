@@ -35,27 +35,14 @@ export class UserService {
     this.offline = false;
     return new Promise((resolve, reject) => {
       firebase.auth().signInWithEmailAndPassword(email, password)
-      // Prijava s FireBase je uspela, uporabnika si shranimo v lokalno shrambo.
+      // Prijava s FireBase je uspela.
         .then((user) => {
           this.token = user.token;
           this.router.navigate(['meritve']);
-          if (user.displayName) {
-            const name = user.displayName.split(' ');
-            this.indexedDB.addUser(name[0], name[1], user.email, user.photoURL);
-          }
         })
-        // Prijava s FireBase ni uspela, email in password preverimo s podatki, ki jih imamo shranjene v lokalni shrambi.
+        // Prijava s FireBase ni uspela.
         .catch(error => {
           console.log('napaka pri prijavi na firebase ', error);
-          this.indexedDB.getByEmail(email).then((user) => {
-            if (user.password === password) {
-              this.offline = true;
-              this.token = 'offline';
-              this.router.navigate(['meritve']);
-            } else {
-              reject();
-            }
-          }).catch(() => reject())
         });
     });
   }
@@ -75,14 +62,10 @@ export class UserService {
    */
   isAuthenticated() {
     return new Promise((resolve) => {
-      if (this.offline) {
-        resolve(this.token !== null);
-      } else {
-        firebase.auth().currentUser.getIdToken().then(token => {
-          this.token = token;
-          resolve(token !== null);
-        }).catch(() => console.log('Napaka pridobivanja tokena '));
-      }
+      firebase.auth().currentUser.getIdToken().then(token => {
+        this.token = token;
+        resolve(token !== null);
+      }).catch(() => console.log('Napaka pridobivanja tokena '));
     });
   }
 }

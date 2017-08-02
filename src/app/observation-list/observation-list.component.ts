@@ -13,6 +13,7 @@ export class ObservationListComponent implements OnInit {
 
   // spremenljivke za shranjevanje podatkov
   observations: any[];
+  queueObservations: any[];
   patients: any[] = [];
   patient: any;
 
@@ -24,6 +25,7 @@ export class ObservationListComponent implements OnInit {
   page = 1;
   total = 10;
   offset = 10;
+  pagination = true;
 
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
@@ -81,13 +83,12 @@ export class ObservationListComponent implements OnInit {
           () => {
             console.log('Meritev ni bilo mogoce pridobiti');
             const patientId: string = 'Patient/' + this.patient.resource.id;
-            this.indexedDB.getObservationRange((this.page * 10 - 10), (this.page * 10 - 10) + this.offset, patientId).then((response) => {
-              this.observations = response[1];
-              // Nastavljen TimeOut na 100ms, da se tabela meritev napolni
-              setTimeout(() => {
-                // this.total = this.observations.length;  // stevilo vseh meritev, potrebno za paginacijo
-                console.log('total: ', response[0]);
-                this.total = response[0];
+            this.indexedDB.getObservationsById(patientId).then((response: any) => {
+              this.observations = response;
+              if (this.observations.length <= 0) {
+                this.observationsError = true;
+              } else {
+                this.observationsError = false;
                 for (const observation of this.observations) {
                   const id = observation.resource.subject.reference.substring(8); // iz Patient/123456 se pretvori v 123456
                   // Za dano meritev pridobimo vse podatke o pacient iz lokalne shrambe
@@ -95,14 +96,16 @@ export class ObservationListComponent implements OnInit {
                     observation.patient = patient;
                   });
                 }
-                if (this.total === 0) {
-                  this.observationsError = true;
-                }
-                }, 1000);
-              this.indexedDB.getAllObservations().then((all) => this.total = all.length);
+              }
             });
+            this.indexedDB.getObservationFromQueueByPatient(this.patient.resource.id).then((response: any) => {
+              this.queueObservations = response;
+              this.observationsError = false;
+              console.log(this.queueObservations);
+            })
             this.offline = true;
             this.observationsWaiting = false;
+            this.pagination = false;
           },
         )}, 10);
     }
@@ -194,15 +197,17 @@ export class ObservationListComponent implements OnInit {
    */
   onSinc() {
     Promise.all([this.observationInput.postObservation(), // pocakamo na vse funkcije in nato prikazemo snackBar.
-      this.indexedDB.getAllObservationsDeleteQueue(),
-      this.indexedDB.storeObservations()]).then(
+      this.indexedDB.getAllObservationsDeleteQueue()]).then(
       (values: any) => {
         for (const observation of values[1]) {
           this.onDelete(observation);
         }
         this.snackBar.open(
-          values[0] + ' poslanih meritev na strežnik, ' + values[1].length + ' izbrisanih meritev na strežniku in ' +
-          values[2] + ' pridobljenih meritev.', 'OK', {duration: 20000, });
+          values[0] + ' poslanih meritev na strežnik, ' + values[1].length + ' izbrisanih meritev na strežniku. ' +
+          'Vsi podatki iz lokalne shrambe so zbrisani.' ,
+          'OK', {duration: 20000, });
+        this.indexedDB.deleteAllObservations();
+        this.indexedDB.deleteAllPatients();
       }
     );
   }
