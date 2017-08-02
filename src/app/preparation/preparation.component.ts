@@ -21,13 +21,15 @@ export class PreparationComponent implements OnInit {
   constructor(private observationService: ObservationService,
               private indexedDB: IndexedDBService,
               private router: Router) {
+    // potrebno za autocomplete
     this.patientCtrl = new FormControl();
     this.filteredPatients = this.patientCtrl.valueChanges
       .startWith(null)
-      .map(name => this.filterStates(name));
+      .map(name => this.filterPatients(name));
   }
 
   ngOnInit() {
+    // napolnimo tabelo vseh pacientov
     this.observationService.getPatients('patronaza1').subscribe(
       response => {
         for (const el of response.entry) {
@@ -35,6 +37,7 @@ export class PreparationComponent implements OnInit {
         }
       }, error => console.log(error)
     );
+    // napolnimo tabelo lokalno shranjenih uporabnikov
     setTimeout(() => {
       this.indexedDB.getAllPatients().then((response: any) => {
         if (response) {
@@ -47,8 +50,10 @@ export class PreparationComponent implements OnInit {
     console.log(this.localPatients);
   }
 
-  filterStates(val: string) {
-    return val ? this.patients.filter(s => s.toLowerCase().indexOf(val.toLowerCase()) === 0) : this.patients;
+  filterPatients(val: string) {
+    console.log(this.patients.filter(s => console.log(s)));
+    return val ? this.patients.filter(s => s.resource.name[0].family.toLowerCase().indexOf(val.toLowerCase()) === 0 ||
+    s.resource.name[0].given[0].toLowerCase().indexOf(val.toLowerCase()) === 0) : this.patients;
   }
 
   addPatient(patient: any) {
