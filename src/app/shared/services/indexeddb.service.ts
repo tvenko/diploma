@@ -81,13 +81,14 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobimo meritve iz vrste za posiljnaje na streznik, glede na id pacienta.
   getObservationFromQueueByPatient(patientId: number) {
     return new Promise((resolve) => {
       const patients = [];
       this.db.openCursor('observationQueue', (evt) => {
         const cursor = evt.target.result;
         if (cursor) {
-          if (cursor.value.patient === patientId.toString()){
+          if (cursor.value.patient === patientId.toString()) {
             patients.push(cursor.value);
           }
           cursor.continue();
@@ -145,6 +146,7 @@ export class IndexedDBService {
     });
   }
 
+  // Pridobimo vse meritve glede na id pacienta.
   getObservationsById(id: string) {
     const observations: any = [];
     return new Promise((resolve) => {
@@ -164,59 +166,6 @@ export class IndexedDBService {
     });
   }
 
-  // Pridobim meritve iz intervala podanega s start in stop, ki ustrezajo pacientu s IDjem enakim patientId
-  getObservationRange(start: number, stop: number, patinetId: string) {
-    return new Promise((resolve) => {
-      let total = 0;
-      const observations: any = [];
-      const response: any = [];
-      this.db.openCursor('observations', (evt) => {
-        const cursor = evt.target.result;
-        if (cursor) {
-          // Preverimo ali je meritev sploh veljavna
-          // Neveljavna je lahko, ce zbrisemo meritev, vendar se na strezniku se ne pobrise popolno ampak samo nima vrednosti
-          if (cursor.value.observation.resource.subject) {
-            if (cursor.value.observation.resource.subject.reference === patinetId) {
-              if (total >= start && total < stop) {
-                observations.push(cursor.value.observation);
-              }
-              total++;
-            }
-          } else {
-            // ce obstaja neveljavna meritev v IndexedDB jo pobrisemo
-            this.deleteObservtion(cursor.value.id);
-          }
-          cursor.continue();
-        } else {
-          response[0] = total;
-        }
-      });
-      response[1] = observations;
-      resolve(response);
-    });
-  }
-
-  // Shranimo prvih 100 meritev v indexedDB, klice se ob inicializaciji baze in sinhronizaciji
-  storeObservations(): Promise<any> {
-    let i = 0;
-    return new Promise((resolve, reject) => {
-      this.observationService.getObservations('patronaza1', 0, 100).subscribe(
-        response => {
-          if (response.entry) {
-            for (const observation of response.entry) {
-              i += this.addObservation(observation, observation.resource.id);
-            }
-            resolve(i);
-          }
-        },
-        () => {
-          console.log('Meritev ni bilo mogoce shraniti, napaka v pridobivanju');
-          reject();
-        },
-      );
-    });
-  }
-
   // Izbrisemo meritev s podanim IDjem
   deleteObservtion(id: number) {
     this.db.delete('observations', id).then(() => {
@@ -226,6 +175,7 @@ export class IndexedDBService {
     });
   }
 
+  // Izbrisemo meritev z podanim id uporabnika
   deleteObseravtionByPatient(patientId: number) {
     this.db.getByIndex('observations', 'patientId', patientId.toString()).then((observation) => {
       if (observation) {
@@ -235,6 +185,7 @@ export class IndexedDBService {
     }, (error) => console.log(error));
   }
 
+  // Izbrisemo vse meritve v lokalni shrambi.
   deleteAllObservations() {
     this.db.clear('observations').then(() => {
       console.log('uspesno zbrisane vse meritve v IndexedDB');
@@ -292,29 +243,7 @@ export class IndexedDBService {
    * Uporabimo, ko je uporabnik offline.
    */
 
-  // V IndexedDB si shranimo vse paciente, ki jih imamo na strezniku, metoda se klice ob inicializaciji baze
-  storePatients() {
-    this.observationService.getPatients('patronaza1').subscribe(
-      response => {
-        if (response.entry) {
-          for (const patient of response.entry) {
-            this.db.add('patients', {
-              patient: patient,
-              id: patient.resource.id
-            }).then((_patient) => {
-              console.log('uspesno dodan pacient ' + _patient);
-            }, (error) => {
-              console.log('napaka pri dodajanju pacienta ' + error);
-            });
-          }
-        }
-      },
-      error => {
-        console.log('ni bilo mogoce shraniti pacientov lokalno shrambo ' + error);
-    }
-    );
-  }
-
+  // Dodamo pacienta v lokalno shrmabo.
   addPatient(patient: any) {
     this.db.add('patients', {
       patient: patient,
@@ -356,6 +285,7 @@ export class IndexedDBService {
     });
   }
 
+  // Izbrisemo pacienta s podanim id-jem.
   deletePatient(id: number) {
     this.db.delete('patients', id).then(() => {
       console.log('pacient uspesno zbrisan');
@@ -364,6 +294,7 @@ export class IndexedDBService {
     });
   }
 
+  // Izbrisemo vse paciente.
   deleteAllPatients() {
     this.db.clear('patients').then(() => console.log('uspesno zbrisani vsi pacienti'),
       (error) => console.log('napaka pri brisanju pacientov', error))

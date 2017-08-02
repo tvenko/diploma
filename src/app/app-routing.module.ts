@@ -8,7 +8,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { AuthGuard } from './shared/services/auth-guard.service';
 import { PreparationComponent } from './preparation/preparation.component';
 
-let appRoutes: Routes;
+let appRoutes: Routes = [];
 
 if (navigator.onLine) {
   appRoutes = [
