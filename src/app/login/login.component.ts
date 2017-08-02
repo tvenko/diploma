@@ -15,9 +15,12 @@ export class LoginComponent implements OnInit {
   user: {name: string, surname: string, email: string, password: string, id: number};
   loginFail = false;
 
-  constructor (private router: Router, private indexedDB: IndexedDBService, private userService: UserService) { }
+  constructor (private router: Router, private indexedDB: IndexedDBService, private userService: UserService) {}
 
   ngOnInit() {
+    if (!navigator.onLine) {
+      this.router.navigate(['/priprava']);
+    }
     this.loginForm = new FormGroup({
       'email': new FormControl(null, [Validators.email, Validators.required]),
       'password': new FormControl(null, Validators.required)
@@ -25,18 +28,6 @@ export class LoginComponent implements OnInit {
   }
 
   onLogin() {
-    // this.indexedDB.getByEmail(this.loginForm.controls.email.value).then((user) => {
-    //   this.user = user;
-    //   if (this.user.password === this.loginForm.controls.password.value) {
-    //     this.router.navigate(['meritve']);
-    //   } else {
-    //     this.loginFail = true;
-    //     this.loginForm.controls.password.reset();
-    //   }
-    // }, () => {
-    //   this.loginFail = true;
-    //   this.loginForm.controls.password.reset();
-    // });
     this.userService.signInUser(this.loginForm.controls.email.value, this.loginForm.controls.password.value)
       .catch(() => {
         this.loginFail = true;
