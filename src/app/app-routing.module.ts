@@ -23,10 +23,11 @@ if (navigator.onLine) {
   ];
 } else {
   appRoutes = [
-    { path: '', redirectTo: '/meritve', pathMatch: 'full'},
+    { path: '', redirectTo: '/priprava', pathMatch: 'full'},
     { path: 'meritve', component: ObservationListComponent, canActivate: [AuthGuard] },
     { path: 'meritve/vnos', component: ObservationInputComponent, canActivate: [AuthGuard] },
     { path: 'not-found', component: PageNotFoundComponent},
+    { path: 'priprava', component: PreparationComponent, canActivate: [AuthGuard]},
     { path: '**', redirectTo: '/not-found'}
   ];
 }

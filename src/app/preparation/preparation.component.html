@@ -1,5 +1,5 @@
 <app-main-navbar></app-main-navbar>
-<div class="myAutoComplite">
+<div class="myAutoComplite" *ngIf="online">
   Dodaj pacienta v lokalno shrambo:
   <md-input-container>
     <input mdInput placeholder="Pacient" [mdAutocomplete]="auto" [formControl]="patientCtrl">

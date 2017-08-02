@@ -13,6 +13,7 @@ export class PreparationComponent implements OnInit {
 
   patientCtrl: FormControl;
   filteredPatients: any;
+  online: boolean;
 
   patients = [];
   patient: any;
@@ -29,6 +30,7 @@ export class PreparationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.online = navigator.onLine;
     // napolnimo tabelo vseh pacientov
     this.observationService.getPatients('patronaza1').subscribe(
       response => {

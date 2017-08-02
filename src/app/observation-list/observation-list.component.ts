@@ -36,8 +36,6 @@ export class ObservationListComponent implements OnInit {
     // Ob inicializaciji pridobimo meritve in paciente
     this.getObservations();
     this.getPatients();
-    const online = navigator.onLine;
-    console.log(online);
   }
 
   /**
