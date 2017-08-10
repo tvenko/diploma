@@ -159,7 +159,7 @@ export class ObservationListComponent implements OnInit {
     } else { // Ce meritev klicemo ob pritisku na gumb izbrisi
       // Meritev dodamo v delteQueue
       this.indexedDB.addToDeleteQueue(observation.resource.id).then(() => {
-        this.observations.splice(i, i); // Izbrisemo meritev iz tabele this.observations
+        this.observations.splice(i, 1); // Izbrisemo meritev iz tabele this.observations
         this.indexedDB.getAllObservationsDeleteQueue().then((observations: any) => {
           if (observations) {
             for (const el of observations) {

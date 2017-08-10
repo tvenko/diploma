@@ -15,7 +15,7 @@ import { IndexedDBService } from '../shared/services/indexeddb.service';
 export class ObservationInputComponent implements OnInit {
 
   patients: any[] = [];
-  patient: any;
+  patient: any = null;
   request: any = {};
   entry: any = {};
   bundle: any = {};
@@ -38,12 +38,14 @@ export class ObservationInputComponent implements OnInit {
       })
     }, this.formValidator.bind(this));
     this.getPatients();
+    this.patient = null;
   }
 
   /**
    * Metoda ki shrani meritve, ki jih zelimo poslati v vrsto
    */
   saveToQueue() {
+    console.log(this.patient);
     Object.keys(this.observationForm.controls).forEach(key => {
       if (this.observationForm.get(key).value !== null && key !== 'patient') {
         const patientId = this.patient.resource.id;
@@ -149,7 +151,7 @@ export class ObservationInputComponent implements OnInit {
         this.patients = response.entry;
         this.patient = this.observationService.getLoclaPatient();
         // Za pacienta nastavimo pacienta, ki je izbran pri pregledu
-        if (this.patient) {
+        if (this.patient && navigator.onLine) {
           for (const patient of this.patients) {
             if (this.patient.resource.id === patient.resource.id) {
               this.patient = patient;
