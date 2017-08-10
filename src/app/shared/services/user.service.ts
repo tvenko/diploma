@@ -1,18 +1,12 @@
-import {Injectable, OnInit} from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as firebase from 'firebase';
 import { Router } from '@angular/router';
 import { IndexedDBService } from './indexeddb.service';
 
 @Injectable()
-export class UserService implements OnInit {
-
-  token: string = null;
+export class UserService {
 
   constructor (private router: Router, private indexedDB: IndexedDBService) {}
-
-  ngOnInit() {
-    this.getToken();
-  }
 
   /**
    * Funkcija, ki registrira novega uporabnika ne FireBase strezniku.
@@ -39,7 +33,6 @@ export class UserService implements OnInit {
       firebase.auth().signInWithEmailAndPassword(email, password)
       // Prijava s FireBase je uspela.
         .then((user) => {
-          this.token = user.token;
           this.router.navigate(['meritve']);
         })
         // Prijava s FireBase ni uspela.
@@ -55,7 +48,6 @@ export class UserService implements OnInit {
    */
   logout() {
     firebase.auth().signOut();
-    this.token = null;
     this.router.navigate(['/']);
   }
 

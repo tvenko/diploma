@@ -148,14 +148,16 @@ export class ObservationInputComponent implements OnInit {
   getPatients() {
     this.observationService.getPatients('patronaza1').subscribe(
       response => {
-        this.patients = response.entry;
-        this.patient = this.observationService.getLoclaPatient();
-        // Za pacienta nastavimo pacienta, ki je izbran pri pregledu
-        if (this.patient && navigator.onLine) {
-          for (const patient of this.patients) {
-            if (this.patient.resource.id === patient.resource.id) {
-              this.patient = patient;
-              break;
+        if (navigator.onLine) {
+          this.patients = response.entry;
+          this.patient = this.observationService.getLoclaPatient();
+          // Za pacienta nastavimo pacienta, ki je izbran pri pregledu
+          if (this.patient) {
+            for (const patient of this.patients) {
+              if (this.patient.resource.id === patient.resource.id) {
+                this.patient = patient;
+                break;
+              }
             }
           }
         }
@@ -170,10 +172,15 @@ export class ObservationInputComponent implements OnInit {
             this.patient = this.observationService.getLoclaPatient();
             // Za pacienta nastavimo paienta, ki je izbran pri pregledu
             if (this.patient) {
+              let nasel = false;
               for (const patient of this.patients) {
                 if (this.patient.resource.id === patient.resource.id) {
                   this.patient = patient;
+                  nasel = true;
                   break;
+                }
+                if (!nasel) {
+                  this.patient = null;
                 }
               }
             }
