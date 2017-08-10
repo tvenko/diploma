@@ -99,8 +99,7 @@ export class ObservationListComponent implements OnInit {
             this.indexedDB.getObservationFromQueueByPatient(this.patient.resource.id).then((response: any) => {
               this.queueObservations = response;
               this.observationsError = false;
-              console.log(this.queueObservations);
-            })
+            });
             this.offline = true;
             this.observationsWaiting = false;
             this.pagination = false;
@@ -128,7 +127,7 @@ export class ObservationListComponent implements OnInit {
       },
       // Ce pacientov ne uspemo pridobiti iz streznika poskusimo se v lokalni shrambi
       () => {
-        console.log('pacientov ni bilo mogoce pridoviti');
+        console.log('pacientov ni bilo mogoce pridobiti');
         this.indexedDB.getAllPatients().then((response: any) => {
           if (response) {
             for (const patient of response) {
@@ -186,6 +185,13 @@ export class ObservationListComponent implements OnInit {
         });
       });
     }
+  }
+
+  onDeleteQueue(observation: any) {
+    this.indexedDB.deleteObservationDeleteQueue(observation.id);
+    this.indexedDB.getObservationFromQueueByPatient(this.patient.resource.id).then((response: any) => {
+      this.queueObservations = response;
+    });
   }
 
   /**

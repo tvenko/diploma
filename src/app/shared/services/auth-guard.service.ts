@@ -8,20 +8,23 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     return new Promise((resolve) => {
-      resolve(true);
-      // this.userService.isAuthenticated()
-      //   .then((response) => {
-      //     if (response) {
-      //       resolve(true);
-      //     } else {
-      //       this.router.navigate(['/prijava']);
-      //       resolve(false);
-      //     }
-      //   })
-      //   .catch(() => {
-      //     this.router.navigate(['/prijava']);
-      //     resolve(false);
-      //   });
+      if (navigator.onLine) {
+        this.userService.isAuthenticated()
+          .then((response) => {
+            if (response) {
+              resolve(true);
+            } else {
+              this.router.navigate(['/prijava']);
+              resolve(false);
+            }
+          })
+          .catch(() => {
+            this.router.navigate(['/prijava']);
+            resolve(false);
+          });
+      } else {
+        resolve(true);
+      }
     });
   }
 }

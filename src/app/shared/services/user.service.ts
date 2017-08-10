@@ -1,15 +1,18 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import * as firebase from 'firebase';
 import { Router } from '@angular/router';
 import { IndexedDBService } from './indexeddb.service';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnInit {
 
-  token: string;
-  offline: boolean;
+  token: string = null;
 
   constructor (private router: Router, private indexedDB: IndexedDBService) {}
+
+  ngOnInit() {
+    this.getToken();
+  }
 
   /**
    * Funkcija, ki registrira novega uporabnika ne FireBase strezniku.
@@ -19,7 +22,7 @@ export class UserService {
    */
   signUpUser(email: string, password: string, name: string) {
     firebase.auth().createUserWithEmailAndPassword(email, password).then((user) => {
-      firebase.auth().currentUser.updateProfile({displayName: name, photoURL: password});
+      firebase.auth().currentUser.updateProfile({displayName: name, photoURL: null});
     })
       .catch(error => console.log('napak pri registraciji na firebase ', error));
   }
@@ -32,7 +35,6 @@ export class UserService {
    * @returns {Promise<any>}
    */
   signInUser(email: string, password: string) {
-    this.offline = false;
     return new Promise((resolve, reject) => {
       firebase.auth().signInWithEmailAndPassword(email, password)
       // Prijava s FireBase je uspela.
@@ -42,7 +44,8 @@ export class UserService {
         })
         // Prijava s FireBase ni uspela.
         .catch(error => {
-          console.log('napaka pri prijavi na firebase ', error);
+          console.log('napaka pri prijavi ', error);
+          reject();
         });
     });
   }
@@ -61,11 +64,14 @@ export class UserService {
    * @returns {Promise<boolean>}
    */
   isAuthenticated() {
-    return new Promise((resolve) => {
-      firebase.auth().currentUser.getIdToken().then(token => {
-        this.token = token;
-        resolve(token !== null);
-      }).catch(() => console.log('Napaka pridobivanja tokena '));
+    return new Promise((resolve, reject) => {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          resolve(true);
+        } else {
+          reject();
+        }
+      })
     });
   }
 }

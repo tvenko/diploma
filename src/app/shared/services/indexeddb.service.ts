@@ -153,7 +153,6 @@ export class IndexedDBService {
       this.db.openCursor('observations', (evt) => {
         const cursor = evt.target.result;
         if (cursor) {
-          console.log(cursor.value.observation);
           if (cursor.value.observation.resource.subject) {
             if (cursor.value.observation.resource.subject.reference === id) {
               observations.push(cursor.value.observation);
@@ -231,7 +230,8 @@ export class IndexedDBService {
 
   // Izbrisemo ID meritve, ki smo jo uspesno zbrisali tudi na strezniku
   deleteObservationDeleteQueue(id: number) {
-    this.db.delete('deleteQueue', id).then(() => {
+    console.log(id);
+    this.db.delete('deleteQueue', id.toString()).then(() => {
       console.log('uspesno zbrisan');
     }, (error) => {
       console.log('napaka pri brisanj ' + error);

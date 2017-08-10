@@ -83,7 +83,7 @@
           <div *ngIf="observation.type == 'oxygenSaturation'">%</div>
         </md-card-content>
         <md-card-actions align="end">
-          <button md-button color="primary">IZBRIŠI</button>
+          <button md-button color="primary" (click)="onDeleteQueue(observation)">IZBRIŠI</button>
         </md-card-actions>
       </div>
 
@@ -101,7 +101,7 @@
           <br>
         </md-card-content>
         <md-card-actions align="end">
-          <button md-button color="primary">IZBRIŠI</button>
+          <button md-button color="primary" (click)="onDeleteQueue(observation)">IZBRIŠI</button>
         </md-card-actions>
       </div>
     </md-card>

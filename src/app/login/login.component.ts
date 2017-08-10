@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IndexedDBService } from '../shared/services/indexeddb.service';
 import { UserService } from '../shared/services/user.service';
 
+@Injectable()
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
